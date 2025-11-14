@@ -1,0 +1,3247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BRA Serviços - CFVM - Controle de Frequência de Volantes e Marcadores</title>
+  <meta name="description" content="Sistema de controle de frequência para terceirizados, afastamentos e postos de trabalho">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  
+  <!-- Font Awesome para ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary-color: #0d6efd;
+      --secondary-color: #6c757d;
+      --success-color: #198754;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --info-color: #0dcaf0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    
+    .navbar-brand {
+      font-weight: 600;
+    }
+    
+    .vm-badge {
+      background-color: var(--info-color);
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    
+    .app-section {
+      animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .card {
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      transition: box-shadow 0.15s ease-in-out;
+    }
+    
+    .card:hover {
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .nav-pills .nav-link.active {
+      background-color: var(--primary-color);
+      font-weight: 500;
+    }
+    
+    .table th {
+      border-top: none;
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+    
+    .btn {
+      border-radius: 0.375rem;
+      font-weight: 500;
+    }
+    
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .status-message {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 9998;
+      min-width: 300px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--secondary-color);
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #dee2e6;
+    }
+    
+    /* Responsividade aprimorada */
+    @media (max-width: 768px) {
+      .table-responsive {
+        font-size: 0.875rem;
+      }
+      
+      .btn-group .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+      
+      .display-6 {
+        font-size: 1.5rem;
+      }
+    }
+    
+    /* Melhorias para formulários */
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .required::after {
+      content: " *";
+      color: var(--danger-color);
+    }
+    
+    /* Melhorias para modais */
+    .modal-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .modal-footer {
+      background-color: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+    }
+    
+    .conditional-field {
+      display: none;
+    }
+    
+    .id-posto-display {
+      background-color: #e9ecef;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      font-family: monospace;
+      font-weight: bold;
+    }
+    
+    .file-input-info {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    
+    .relatorio-card {
+      transition: transform 0.2s ease-in-out;
+      cursor: pointer;
+    }
+    
+    .relatorio-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .template-download {
+      font-size: 0.875rem;
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    .template-download:hover {
+      text-decoration: underline;
+    }
+    
+    /* Campos condicionais para terceirizados */
+    .volante-only {
+      display: block;
+    }
+    
+    /* Estilos para tooltips de relatórios */
+    .relatorio-guia {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 0.5rem;
+    }
+    
+    .relatorio-guia ol {
+      padding-left: 1.2rem;
+      margin-bottom: 0;
+    }
+    
+    .relatorio-guia li {
+      margin-bottom: 0.3rem;
+    }
+    
+    /* Estilos para busca */
+    .search-container {
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay d-none">
+    <div class="text-center">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <p class="mt-2">Carregando...</p>
+    </div>
+  </div>
+
+  <!-- Status Message -->
+  <div id="statusMessage" class="status-message alert alert-dismissible fade d-none" role="alert">
+    <span id="statusText"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </div>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="Navegação principal">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#" aria-label="BRA Serviços - Página inicial">
+        <i class="fas fa-id-card-alt"></i>
+        <span>BRA Serviços — CFVM</span>
+        <span class="vm-badge" title="Visual Marcação" aria-label="Visual Marcação">VM</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Alternar navegação">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#"><i class="fas fa-home me-1"></i>Início</a>
+          </li>
+        </ul>
+        <div class="d-flex">
+          <span class="navbar-text">
+            <i class="fas fa-user me-1"></i>Usuário: Admin
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <aside class="col-12 col-md-3 col-xl-2 bg-light border-end py-3" aria-label="Menu lateral">
+        <nav aria-label="Navegação das seções">
+          <ul class="nav nav-pills flex-column gap-2" id="sidebar" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a class="nav-link active" href="#dashboard" data-section role="tab" aria-selected="true">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link" href="#terceirizados" data-section role="tab" aria-selected="false">
+                <i class="fas fa-users me-2"></i>Terceirizados
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link" href="#afastamentos" data-section role="tab" aria-selected="false">
+                <i class="fas fa-calendar-times me-2"></i>Afastamentos
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link" href="#postos" data-section role="tab" aria-selected="false">
+                <i class="fas fa-building me-2"></i>Postos
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link" href="#relatorios" data-section role="tab" aria-selected="false">
+                <i class="fas fa-chart-bar me-2"></i>Relatórios
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link" href="#importar" data-section role="tab" aria-selected="false">
+                <i class="fas fa-file-import me-2"></i>Importar/Exportar
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link" href="#backup" data-section role="tab" aria-selected="false">
+                <i class="fas fa-database me-2"></i>Backup
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+      
+      <main class="col py-3">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="app-section">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h1>
+            <div class="text-muted">
+              <i class="fas fa-calendar me-1"></i>
+              <span id="currentDate"></span>
+            </div>
+          </div>
+          
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-lg-3">
+              <div class="card border-primary">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-bold text-primary">Terceirizados</div>
+                      <div id="cardTerceirizados" class="display-6 fw-bold">0</div>
+                    </div>
+                    <div class="bg-primary text-white rounded p-2">
+                      <i class="fas fa-users fa-2x"></i>
+                    </div>
+                  </div>
+                  <div class="mt-2 small text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Total de colaboradores
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="card border-warning">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-bold text-warning">Afastamentos (mês)</div>
+                      <div id="cardAfastamentos" class="display-6 fw-bold">0</div>
+                    </div>
+                    <div class="bg-warning text-white rounded p-2">
+                      <i class="fas fa-calendar-times fa-2x"></i>
+                    </div>
+                  </div>
+                  <div class="mt-2 small text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Afastamentos este mês
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="card border-success">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-bold text-success">Postos Ativos</div>
+                      <div id="cardPostos" class="display-6 fw-bold">0</div>
+                    </div>
+                    <div class="bg-success text-white rounded p-2">
+                      <i class="fas fa-building fa-2x"></i>
+                    </div>
+                  </div>
+                  <div class="mt-2 small text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Postos em atividade
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <div class="card border-info">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-bold text-info">Coberturas</div>
+                      <div id="cardCoberturas" class="display-6 fw-bold">0</div>
+                    </div>
+                    <div class="bg-info text-white rounded p-2">
+                      <i class="fas fa-user-check fa-2x"></i>
+                    </div>
+                  </div>
+                  <div class="mt-2 small text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Coberturas ativas
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>Distribuição por Ocupação</h5>
+                </div>
+                <div class="card-body">
+                  <div id="ocupacaoChart" class="empty-state">
+                    <i class="fas fa-chart-pie"></i>
+                    <p>Gráfico de distribuição por ocupação</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0"><i class="fas fa-list me-2"></i>Afastamentos Recentes</h5>
+                </div>
+                <div class="card-body">
+                  <div id="recentAfastamentos" class="empty-state">
+                    <i class="fas fa-list"></i>
+                    <p>Nenhum afastamento recente</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Terceirizados Section - ATUALIZADA com busca e exclusão funcional -->
+        <section id="terceirizados" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0"><i class="fas fa-users me-2"></i>Terceirizados</h1>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" id="btnNovoTer">
+                <i class="fas fa-plus me-1"></i>Novo
+              </button>
+              <button class="btn btn-outline-secondary" id="btnExportTer">
+                <i class="fas fa-file-export me-1"></i>Exportar CSV
+              </button>
+            </div>
+          </div>
+          
+          <!-- Campo de busca por matrícula -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="searchTerceirizados" placeholder="Buscar por matrícula...">
+                <button class="btn btn-outline-secondary" type="button" id="btnClearSearchTer">Limpar</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-striped table-hover" id="tblTerceirizados" aria-describedby="tableTerceirizadosDesc">
+                  <caption id="tableTerceirizadosDesc" class="visually-hidden">
+                    Lista de terceirizados com matrícula, nome, CPF, ocupação, posto e supervisor
+                  </caption>
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Matrícula</th>
+                      <th scope="col">Nome</th>
+                      <th scope="col" class="d-none d-md-table-cell">CPF</th>
+                      <th scope="col">Ocupação</th>
+                      <th scope="col" class="d-none d-sm-table-cell">Posto</th>
+                      <th scope="col" class="d-none d-lg-table-cell">ID Posto</th>
+                      <th scope="col" class="d-none d-xl-table-cell">Supervisor</th>
+                      <th scope="col">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="terceirizadosTableBody">
+                    <tr>
+                      <td colspan="8" class="text-center py-4">
+                        <div class="empty-state">
+                          <i class="fas fa-users"></i>
+                          <p>Nenhum terceirizado cadastrado</p>
+                          <button class="btn btn-primary mt-2" id="btnAddFirstTer">
+                            <i class="fas fa-plus me-1"></i>Adicionar Primeiro Terceirizado
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Afastamentos Section - ATUALIZADA com busca e exclusão funcional -->
+        <section id="afastamentos" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0"><i class="fas fa-calendar-times me-2"></i>Afastamentos</h1>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" id="btnNovoAfa">
+                <i class="fas fa-plus me-1"></i>Novo
+              </button>
+              <button class="btn btn-outline-secondary" id="btnExportAfa">
+                <i class="fas fa-file-export me-1"></i>Exportar CSV
+              </button>
+              <button class="btn btn-outline-info" id="btnCartaModal">
+                <i class="fas fa-envelope me-1"></i>Gerar Carta
+              </button>
+            </div>
+          </div>
+          
+          <!-- Campo de busca por matrícula -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="searchAfastamentos" placeholder="Buscar por matrícula...">
+                <button class="btn btn-outline-secondary" type="button" id="btnClearSearchAfa">Limpar</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-striped table-hover" id="tblAfastamentos" aria-describedby="tableAfastamentosDesc">
+                  <caption id="tableAfastamentosDesc" class="visually-hidden">
+                    Lista de afastamentos com ID, matrícula, nome, período, motivo e cobertura
+                  </caption>
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">Matrícula</th>
+                      <th scope="col">Nome</th>
+                      <th scope="col">Período</th>
+                      <th scope="col">Motivo</th>
+                      <th scope="col" class="d-none d-md-table-cell">Cobertura</th>
+                      <th scope="col">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="afastamentosTableBody">
+                    <tr>
+                      <td colspan="7" class="text-center py-4">
+                        <div class="empty-state">
+                          <i class="fas fa-calendar-times"></i>
+                          <p>Nenhum afastamento cadastrado</p>
+                          <button class="btn btn-primary mt-2" id="btnAddFirstAfa">
+                            <i class="fas fa-plus me-1"></i>Adicionar Primeiro Afastamento
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Postos Section -->
+        <section id="postos" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0"><i class="fas fa-building me-2"></i>Postos</h1>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary" id="btnNovoPosto">
+                <i class="fas fa-plus me-1"></i>Novo
+              </button>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm table-striped table-hover" id="tblPostos" aria-describedby="tablePostosDesc">
+                  <caption id="tablePostosDesc" class="visually-hidden">
+                    Lista de postos com nome, número, turno, lotação, supervisor e status
+                  </caption>
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Posto</th>
+                      <th scope="col">Nº Posto</th>
+                      <th scope="col">Turno</th>
+                      <th scope="col">Lotação</th>
+                      <th scope="col">Supervisor</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="postosTableBody">
+                    <tr>
+                      <td colspan="7" class="text-center py-4">
+                        <div class="empty-state">
+                          <i class="fas fa-building"></i>
+                          <p>Nenhum posto cadastrado</p>
+                          <button class="btn btn-primary mt-2" id="btnAddFirstPosto">
+                            <i class="fas fa-plus me-1"></i>Adicionar Primeiro Posto
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Relatórios Section - ATUALIZADA com funcionalidades funcionais -->
+        <section id="relatorios" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0"><i class="fas fa-chart-bar me-2"></i>Relatórios</h1>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary" id="btnExportAllRelatorios">
+                <i class="fas fa-file-export me-1"></i>Exportar Todos
+              </button>
+            </div>
+          </div>
+          
+          <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+              <div class="card relatorio-card h-100">
+                <div class="card-body text-center">
+                  <div class="bg-primary text-white rounded-circle p-3 d-inline-flex mb-3">
+                    <i class="fas fa-users fa-2x"></i>
+                  </div>
+                  <h5 class="card-title">Relatório de Terceirizados</h5>
+                  <p class="card-text">Lista completa de todos os terceirizados cadastrados no sistema com informações detalhadas.</p>
+                  <div class="relatorio-guia">
+                    <strong>Como gerar:</strong>
+                    <ol>
+                      <li>Clique em "Visualizar" para ver na tela</li>
+                      <li>Use "PDF" ou "Excel" para exportar</li>
+                      <li>Aplique filtros se necessário</li>
+                    </ol>
+                  </div>
+                  <div class="mt-3">
+                    <button class="btn btn-primary me-2" data-relatorio="terceirizados">
+                      <i class="fas fa-eye me-1"></i>Visualizar
+                    </button>
+                    <button class="btn btn-outline-secondary" data-relatorio="terceirizados" data-export="pdf">
+                      <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                    <button class="btn btn-outline-success" data-relatorio="terceirizados" data-export="excel">
+                      <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+              <div class="card relatorio-card h-100">
+                <div class="card-body text-center">
+                  <div class="bg-warning text-white rounded-circle p-3 d-inline-flex mb-3">
+                    <i class="fas fa-calendar-times fa-2x"></i>
+                  </div>
+                  <h5 class="card-title">Relatório de Afastamentos</h5>
+                  <p class="card-text">Relatório consolidado de todos os afastamentos por período, motivo e supervisor.</p>
+                  <div class="relatorio-guia">
+                    <strong>Como gerar:</strong>
+                    <ol>
+                      <li>Selecione o período nos filtros</li>
+                      <li>Escolha supervisor e motivo se necessário</li>
+                      <li>Clique em "Visualizar" ou exportar</li>
+                    </ol>
+                  </div>
+                  <div class="mt-3">
+                    <button class="btn btn-primary me-2" data-relatorio="afastamentos">
+                      <i class="fas fa-eye me-1"></i>Visualizar
+                    </button>
+                    <button class="btn btn-outline-secondary" data-relatorio="afastamentos" data-export="pdf">
+                      <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                    <button class="btn btn-outline-success" data-relatorio="afastamentos" data-export="excel">
+                      <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+              <div class="card relatorio-card h-100">
+                <div class="card-body text-center">
+                  <div class="bg-success text-white rounded-circle p-3 d-inline-flex mb-3">
+                    <i class="fas fa-building fa-2x"></i>
+                  </div>
+                  <h5 class="card-title">Relatório de Postos</h5>
+                  <p class="card-text">Análise de ocupação e disponibilidade de postos por lotação e cidade.</p>
+                  <div class="relatorio-guia">
+                    <strong>Como gerar:</strong>
+                    <ol>
+                      <li>Visualize para ver postos ativos/vagos</li>
+                      <li>Exporte em PDF ou Excel</li>
+                      <li>Filtre por supervisor se necessário</li>
+                    </ol>
+                  </div>
+                  <div class="mt-3">
+                    <button class="btn btn-primary me-2" data-relatorio="postos">
+                      <i class="fas fa-eye me-1"></i>Visualizar
+                    </button>
+                    <button class="btn btn-outline-secondary" data-relatorio="postos" data-export="pdf">
+                      <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                    <button class="btn btn-outline-success" data-relatorio="postos" data-export="excel">
+                      <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+              <div class="card relatorio-card h-100">
+                <div class="card-body text-center">
+                  <div class="bg-info text-white rounded-circle p-3 d-inline-flex mb-3">
+                    <i class="fas fa-user-tie fa-2x"></i>
+                  </div>
+                  <h5 class="card-title">Relatório por Supervisor</h5>
+                  <p class="card-text">Distribuição de terceirizados e afastamentos agrupados por supervisor.</p>
+                  <div class="relatorio-guia">
+                    <strong>Como gerar:</strong>
+                    <ol>
+                      <li>Selecione supervisor nos filtros</li>
+                      <li>Visualize ou exporte o relatório</li>
+                      <li>Analise a distribuição por equipe</li>
+                    </ol>
+                  </div>
+                  <div class="mt-3">
+                    <button class="btn btn-primary me-2" data-relatorio="supervisor">
+                      <i class="fas fa-eye me-1"></i>Visualizar
+                    </button>
+                    <button class="btn btn-outline-secondary" data-relatorio="supervisor" data-export="pdf">
+                      <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                    <button class="btn btn-outline-success" data-relatorio="supervisor" data-export="excel">
+                      <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+              <div class="card relatorio-card h-100">
+                <div class="card-body text-center">
+                  <div class="bg-danger text-white rounded-circle p-3 d-inline-flex mb-3">
+                    <i class="fas fa-exclamation-triangle fa-2x"></i>
+                  </div>
+                  <h5 class="card-title">Frequência Insuficiente</h5>
+                  <p class="card-text">Relatório específico de ocorrências de frequência insuficiente com detalhes.</p>
+                  <div class="relatorio-guia">
+                    <strong>Como gerar:</strong>
+                    <ol>
+                      <li>Selecione "Frequência insuficiente" nos filtros</li>
+                      <li>Defina o período desejado</li>
+                      <li>Visualize ou exporte o relatório</li>
+                    </ol>
+                  </div>
+                  <div class="mt-3">
+                    <button class="btn btn-primary me-2" data-relatorio="frequencia">
+                      <i class="fas fa-eye me-1"></i>Visualizar
+                    </button>
+                    <button class="btn btn-outline-secondary" data-relatorio="frequencia" data-export="pdf">
+                      <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                    <button class="btn btn-outline-success" data-relatorio="frequencia" data-export="excel">
+                      <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+              <div class="card relatorio-card h-100">
+                <div class="card-body text-center">
+                  <div class="bg-secondary text-white rounded-circle p-3 d-inline-flex mb-3">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                  </div>
+                  <h5 class="card-title">Relatório Gerencial</h5>
+                  <p class="card-text">Visão consolidada com métricas e indicadores para tomada de decisão.</p>
+                  <div class="relatorio-guia">
+                    <strong>Como gerar:</strong>
+                    <ol>
+                      <li>Defina período e filtros desejados</li>
+                      <li>Visualize para análise na tela</li>
+                      <li>Exporte para compartilhar com gestão</li>
+                    </ol>
+                  </div>
+                  <div class="mt-3">
+                    <button class="btn btn-primary me-2" data-relatorio="gerencial">
+                      <i class="fas fa-eye me-1"></i>Visualizar
+                    </button>
+                    <button class="btn btn-outline-secondary" data-relatorio="gerencial" data-export="pdf">
+                      <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                    <button class="btn btn-outline-success" data-relatorio="gerencial" data-export="excel">
+                      <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Filtros para Relatórios -->
+          <div class="card mt-4">
+            <div class="card-header bg-light">
+              <h5 class="card-title mb-0"><i class="fas fa-filter me-2"></i>Filtros para Relatórios</h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label for="filtroPeriodoInicio" class="form-label">Período Início</label>
+                  <input type="date" id="filtroPeriodoInicio" class="form-control">
+                </div>
+                <div class="col-md-3">
+                  <label for="filtroPeriodoFim" class="form-label">Período Fim</label>
+                  <input type="date" id="filtroPeriodoFim" class="form-control">
+                </div>
+                <div class="col-md-3">
+                  <label for="filtroSupervisor" class="form-label">Supervisor</label>
+                  <select id="filtroSupervisor" class="form-select">
+                    <option value="">Todos</option>
+                    <option>REGIÃO CHAPECÓ/CURITIBANOS</option>
+                    <option>REGIÃO JOINVILLE</option>
+                    <option>REGIÃO FLORIANÓPOLIS</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="filtroMotivo" class="form-label">Motivo</label>
+                  <select id="filtroMotivo" class="form-select">
+                    <option value="">Todos</option>
+                    <option>Frequência insuficiente</option>
+                    <option>Ausência por doença</option>
+                    <option>Falta injustificada</option>
+                    <option>Férias</option>
+                    <option>Outros</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-primary" id="btnAplicarFiltrosRelatorios">
+                    <i class="fas fa-filter me-1"></i>Aplicar Filtros
+                  </button>
+                  <button class="btn btn-outline-secondary ms-2" id="btnLimparFiltrosRelatorios">
+                    <i class="fas fa-times me-1"></i>Limpar Filtros
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Importar/Exportar Section - ATUALIZADA com template corrigido -->
+        <section id="importar" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0"><i class="fas fa-file-import me-2"></i>Importar / Exportar</h1>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0"><i class="fas fa-file-import me-2"></i>Importar Dados</h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="inpImportTer" class="form-label">Importar Cadastro (CSV)</label>
+                    <input type="file" id="inpImportTer" accept=".csv" class="form-control">
+                    <div class="file-input-info" id="fileInfoTer">
+                      Nenhum arquivo selecionado
+                    </div>
+                    <div class="form-text">
+                      <a href="#" class="template-download" id="downloadTemplateTer">
+                        <i class="fas fa-download me-1"></i>Baixar template de importação
+                      </a>
+                    </div>
+                    <div class="form-text">
+                      Formato esperado: Matrícula, Nome, CPF, Sexo, Data Admissão, CTPS, Série CTPS, Profissão, Ocupação, Posto, Nº Posto, ID Posto, Turno, Data Entrada Posto, Data Saída Posto, Lotação Macro, Lotação, Descritivo Lotação, Supervisor, RG, Órgão Expedidor, UF, PIS, Data Nascimento, Nome Mãe, Contato
+                    </div>
+                    <div class="form-text text-warning">
+                      <i class="fas fa-exclamation-triangle me-1"></i>
+                      <strong>Atenção:</strong> O campo Cidade será preenchido automaticamente pelo sistema com base na Lotação selecionada.
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="inpImportAfa" class="form-label">Importar Afastamentos (CSV)</label>
+                    <input type="file" id="inpImportAfa" accept=".csv" class="form-control">
+                    <div class="file-input-info" id="fileInfoAfa">
+                      Nenhum arquivo selecionado
+                    </div>
+                    <div class="form-text">
+                      <a href="#" class="template-download" id="downloadTemplateAfa">
+                        <i class="fas fa-download me-1"></i>Baixar template de importação
+                      </a>
+                    </div>
+                    <div class="form-text">
+                      Formato esperado: ID, Matrícula, Nome, Data Início, Data Fim, Motivo, Cobertura, Tipo Substituição, Tipo Falta, Horário
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="inpImportPostos" class="form-label">Importar Postos (CSV)</label>
+                    <input type="file" id="inpImportPostos" accept=".csv" class="form-control">
+                    <div class="file-input-info" id="fileInfoPostos">
+                      Nenhum arquivo selecionado
+                    </div>
+                    <div class="form-text">
+                      <a href="#" class="template-download" id="downloadTemplatePostos">
+                        <i class="fas fa-download me-1"></i>Baixar template de importação
+                      </a>
+                    </div>
+                    <div class="form-text">
+                      Formato esperado: Posto, Nº Posto, Turno, Lotação, Supervisor, Status
+                    </div>
+                  </div>
+                  <button class="btn btn-primary w-100" id="btnProcessImport">
+                    <i class="fas fa-cogs me-1"></i>Processar Importação
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0"><i class="fas fa-file-export me-2"></i>Exportar Dados</h5>
+                </div>
+                <div class="card-body">
+                  <div class="d-grid gap-2">
+                    <button class="btn btn-outline-secondary" id="btnExportAllTer">
+                      <i class="fas fa-users me-1"></i>Exportar Todos Terceirizados (CSV)
+                    </button>
+                    <button class="btn btn-outline-secondary" id="btnExportAllAfa">
+                      <i class="fas fa-calendar-times me-1"></i>Exportar Todos Afastamentos (CSV)
+                    </button>
+                    <button class="btn btn-outline-secondary" id="btnExportAllPostos">
+                      <i class="fas fa-building me-1"></i>Exportar Todos Postos (CSV)
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Backup Section -->
+        <section id="backup" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0"><i class="fas fa-database me-2"></i>Backup</h1>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0"><i class="fas fa-download me-2"></i>Exportar Backup</h5>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">Exporte todos os dados do sistema para um arquivo JSON.</p>
+                  <button class="btn btn-outline-primary w-100" id="btnBackup">
+                    <i class="fas fa-file-export me-1"></i>Exportar JSON
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="card-title mb-0"><i class="fas fa-upload me-2"></i>Restaurar Backup</h5>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">Restaurar dados a partir de um arquivo JSON de backup.</p>
+                  <div class="d-grid">
+                    <label class="btn btn-outline-secondary">
+                      <i class="fas fa-file-import me-1"></i>Selecionar Arquivo JSON
+                      <input type="file" id="inpRestore" accept=".json" hidden>
+                    </label>
+                  </div>
+                  <div class="mt-2">
+                    <button class="btn btn-primary w-100 d-none" id="btnProcessRestore">
+                      <i class="fas fa-cogs me-1"></i>Processar Restauração
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Carta Modal - ATUALIZADA com funcionalidades funcionais -->
+  <div class="modal fade" id="cartaModal" tabindex="-1" aria-labelledby="cartaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cartaModalLabel"><i class="fas fa-envelope me-2"></i>Gerar Carta de Apresentação</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formCarta" class="row g-3">
+            <div class="col-md-6">
+              <label for="cartaIdAfastamento" class="form-label required">ID do Afastamento</label>
+              <input class="form-control" id="cartaIdAfastamento" required placeholder="Digite o ID do afastamento">
+              <div class="form-text">Digite o ID do afastamento para preencher automaticamente os demais campos</div>
+            </div>
+            <div class="col-md-6">
+              <button type="button" class="btn btn-outline-primary mt-4" id="btnBuscarAfastamento">
+                <i class="fas fa-search me-1"></i>Buscar Afastamento
+              </button>
+            </div>
+            <div class="col-md-6">
+              <label for="cartaSubstituto" class="form-label required">Substituto</label>
+              <input class="form-control" id="cartaSubstituto" required readonly>
+            </div>
+            <div class="col-md-6">
+              <label for="cartaSubstituido" class="form-label required">Substituído</label>
+              <input class="form-control" id="cartaSubstituido" required readonly>
+            </div>
+            <div class="col-md-4">
+              <label for="cartaNroPosto" class="form-label required">Nº Posto</label>
+              <input class="form-control" id="cartaNroPosto" required readonly>
+            </div>
+            <div class="col-md-8">
+              <label for="cartaUnidade" class="form-label required">Unidade/Local</label>
+              <input class="form-control" id="cartaUnidade" required readonly>
+            </div>
+            <div class="col-md-5">
+              <label for="cartaInicio" class="form-label required">Período (Início)</label>
+              <input type="date" class="form-control" id="cartaInicio" required readonly>
+            </div>
+            <div class="col-md-5">
+              <label for="cartaFim" class="form-label required">Período (Fim)</label>
+              <input type="date" class="form-control" id="cartaFim" required readonly>
+            </div>
+            <div class="col-12">
+              <label for="cartaMotivo" class="form-label required">Motivo</label>
+              <input class="form-control" id="cartaMotivo" placeholder="Férias, atestado, etc." required readonly>
+            </div>
+          </form>
+          <div class="small text-muted mt-2">
+            <i class="fas fa-info-circle me-1"></i>
+            Digite o ID do afastamento e clique em "Buscar Afastamento" para preencher automaticamente.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button class="btn btn-outline-primary" id="btnCartaPDF">
+            <i class="fas fa-print me-1"></i>Imprimir (PDF)
+          </button>
+          <button class="btn btn-primary" id="btnCartaDOCX">
+            <i class="fas fa-download me-1"></i>Baixar DOCX
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modais de "Novo" -->
+  <!-- Terceirizado -->
+  <div class="modal fade" id="modalTerceirizado" tabindex="-1" aria-labelledby="modalTerceirizadoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTerceirizadoLabel"><i class="fas fa-user-plus me-2"></i><span id="modalTerceirizadoTitle">Novo Terceirizado</span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formTer" class="row g-3" novalidate>
+            <input type="hidden" id="terceirizadoEditId" name="editId">
+            <div class="col-md-3">
+              <label class="form-label required">Matrícula</label>
+              <input required class="form-control" name="matricula" pattern="[A-Za-z0-9]{4}" title="4 dígitos alfanuméricos" id="matriculaInput" maxlength="4">
+              <div class="invalid-feedback">Por favor, insira uma matrícula válida com 4 dígitos.</div>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label required">Nome Completo</label>
+              <input required class="form-control" name="nome" id="nomeInput">
+              <div class="invalid-feedback">Por favor, insira o nome.</div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label required">Sexo</label>
+              <select required class="form-select" name="sexo" id="sexoSelect">
+                <option value=""></option>
+                <option>M</option>
+                <option>F</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o sexo.</div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label required">CPF</label>
+              <input required class="form-control" name="cpf" maxlength="11" pattern="\d{11}" title="11 dígitos numéricos" id="cpfInput">
+              <div class="invalid-feedback">Por favor, insira um CPF válido com 11 dígitos.</div>
+            </div>
+
+            <!-- NOVOS CAMPOS ADICIONADOS -->
+            <div class="col-md-4">
+              <label class="form-label required">RG</label>
+              <input required class="form-control" name="rg" id="rgInput">
+              <div class="invalid-feedback">Por favor, insira o RG.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Órgão Expedidor</label>
+              <input required class="form-control" name="orgaoExpedidor" id="orgaoExpedidorInput">
+              <div class="invalid-feedback">Por favor, insira o órgão expedidor.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">UF</label>
+              <select required class="form-select" name="uf" id="ufSelect">
+                <option value=""></option>
+                <option>AC</option>
+                <option>AL</option>
+                <option>AP</option>
+                <option>AM</option>
+                <option>BA</option>
+                <option>CE</option>
+                <option>DF</option>
+                <option>ES</option>
+                <option>GO</option>
+                <option>MA</option>
+                <option>MT</option>
+                <option>MS</option>
+                <option>MG</option>
+                <option>PA</option>
+                <option>PB</option>
+                <option>PR</option>
+                <option>PE</option>
+                <option>PI</option>
+                <option>RJ</option>
+                <option>RN</option>
+                <option>RS</option>
+                <option>RO</option>
+                <option>RR</option>
+                <option>SC</option>
+                <option>SP</option>
+                <option>SE</option>
+                <option>TO</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione a UF.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label required">PIS</label>
+              <input required class="form-control" name="pis" id="pisInput">
+              <div class="invalid-feedback">Por favor, insira o PIS.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Data de Nascimento</label>
+              <input required type="date" class="form-control" name="dataNascimento" id="dataNascimentoInput">
+              <div class="invalid-feedback">Por favor, insira a data de nascimento.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Nome da Mãe</label>
+              <input required class="form-control" name="nomeMae" id="nomeMaeInput">
+              <div class="invalid-feedback">Por favor, insira o nome da mãe.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label required">Contato</label>
+              <input required class="form-control" name="contato" id="contatoInput" placeholder="(XX) XXXXX-XXXX">
+              <div class="invalid-feedback">Por favor, insira o contato no formato (XX) XXXXX-XXXX.</div>
+            </div>
+            <!-- FIM DOS NOVOS CAMPOS -->
+
+            <div class="col-md-4">
+              <label class="form-label required">Profissão</label>
+              <select required class="form-select" name="profissao" id="profissaoSelect">
+                <option value=""></option>
+                <option>SERVENTE</option>
+                <option>ENCARREGADO</option>
+                <option>LÍDER</option>
+                <option>SUPERVISOR</option>
+                <option>AUXILIAR DE SAÚDE BUCAL</option>
+                <option>PEDAGOGO</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione a profissão.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Data de Admissão</label>
+              <input required type="date" class="form-control" name="dataAdmissao" id="dataAdmissaoInput">
+              <div class="invalid-feedback">Por favor, insira a data de admissão.</div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label required">CTPS</label>
+              <input required class="form-control" name="ctps" id="ctpsInput" readonly>
+              <div class="invalid-feedback">CTPS gerado automaticamente.</div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label required">Série CTPS</label>
+              <input required class="form-control" name="serieCtps" id="serieCtpsInput" readonly>
+              <div class="invalid-feedback">Série CTPS gerada automaticamente.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label required">Ocupação</label>
+              <select required class="form-select" name="ocupacao" id="ocupacaoSelect">
+                <option value=""></option>
+                <option>TITULAR</option>
+                <option>VOLANTE</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione a ocupação.</div>
+            </div>
+
+            <!-- Campos que aparecem apenas para TITULAR -->
+            <div class="col-md-4 volante-only" id="postoField">
+              <label class="form-label required">Posto</label>
+              <select required class="form-select" name="posto" id="postoSelect">
+                <option value=""></option>
+                <option>SERVENTE</option>
+                <option>ENCARREGADO</option>
+                <option>LÍDER</option>
+                <option>SUPERVISOR</option>
+                <option>AUXILIAR DE SAÚDE BUCAL</option>
+                <option>PEDAGOGO</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o posto.</div>
+            </div>
+            <div class="col-md-2 volante-only" id="nroPostoField">
+              <label class="form-label required">Nº Posto</label>
+              <input required class="form-control" name="nroPosto" id="nroPostoInput">
+              <div class="invalid-feedback">Por favor, insira o número do posto.</div>
+            </div>
+            <div class="col-md-2 volante-only" id="nroSequencialField">
+              <label class="form-label">Nº Sequencial</label>
+              <input class="form-control" name="nroSequencial" value="1" readonly>
+            </div>
+            <div class="col-md-4 volante-only" id="idPostoField">
+              <label class="form-label">ID Posto</label>
+              <input class="form-control" name="idPosto" id="idPostoInput" readonly>
+            </div>
+
+            <div class="col-md-4 volante-only" id="turnoField">
+              <label class="form-label required">Turno</label>
+              <select required class="form-select" name="turno" id="turnoSelect">
+                <option value=""></option>
+                <option>Matutino</option>
+                <option>Vespertino</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o turno.</div>
+            </div>
+            <div class="col-md-4 volante-only" id="dataEntradaPostoField">
+              <label class="form-label required">Data Entrada no Posto</label>
+              <input required type="date" class="form-control" name="dataEntradaPosto" id="dataEntradaPostoInput">
+              <div class="invalid-feedback">Por favor, insira a data de entrada no posto.</div>
+            </div>
+            <div class="col-md-4 volante-only" id="dataSaidaPostoField">
+              <label class="form-label">Data Saída do Posto</label>
+              <input type="date" class="form-control" name="dataSaidaPosto" id="dataSaidaPostoInput">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label required">Lotação Macro</label>
+              <select required class="form-select" name="lotacaoMacro" id="lotacaoMacroSelect">
+                <option value=""></option>
+                <option>Tribunal</option>
+                <option>Comarca</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione a lotação macro.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label required">Lotação</label>
+              <select required class="form-select" name="lotacao" id="lotacaoSelect">
+                <option value=""></option>
+                <!-- As opções serão preenchidas via JavaScript -->
+              </select>
+              <div class="invalid-feedback">Por favor, selecione a lotação.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Descritivo Lotação</label>
+              <input class="form-control" name="descritivoLotacao" id="descritivoLotacaoInput">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label required">Cidade</label>
+              <input required class="form-control" name="cidade" id="cidadeInput" readonly>
+              <div class="invalid-feedback">Por favor, insira a cidade.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Supervisor</label>
+              <select required class="form-select" name="supervisor" id="supervisorSelect">
+                <option value=""></option>
+                <option>CARLOS ADRYEL</option>
+                <option>ROSANGELA</option>
+                <option>ANA BEATRIZ</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o supervisor.</div>
+            </div>
+
+            <div class="col-12">
+              <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                O ID do Posto será gerado automaticamente a partir de Posto + Nº Posto + Nº Sequencial (1) + Nº Contrato (2) + Ano Contrato (2023).
+              </small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" id="btnSalvarTer">
+            <i class="fas fa-save me-1"></i>Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Afastamento -->
+  <div class="modal fade" id="modalAfastamento" tabindex="-1" aria-labelledby="modalAfastamentoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAfastamentoLabel"><i class="fas fa-calendar-plus me-2"></i>Novo Afastamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formAfa" class="row g-3" novalidate>
+            <input type="hidden" id="afastamentoEditId" name="editId">
+            <div class="col-md-3">
+              <label class="form-label">ID Posto</label>
+              <div class="id-posto-display" id="idPostoDisplay">
+                Gerado automaticamente
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label required">Matrícula</label>
+              <input required class="form-control" name="matricula" list="dlistMatriculas" id="matriculaAfastamento">
+              <div class="invalid-feedback">Por favor, insira a matrícula.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Nome</label>
+              <input class="form-control" name="nome" id="nomeAfastamento" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Lotação</label>
+              <input class="form-control" name="lotacao" id="lotacaoAfastamento" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Posto</label>
+              <input class="form-control" name="posto" id="postoAfastamento" readonly>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Tipo de Substituição</label>
+              <select required class="form-select" name="tipoSubstituicao" id="tipoSubstituicao">
+                <option value=""></option>
+                <option value="1">1 - Com Volante</option>
+                <option value="2">2 - Sem Volante</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o tipo de substituição.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Cobertura</label>
+              <select class="form-select" name="cobertura" id="coberturaSelect">
+                <option value=""></option>
+                <!-- Preenchido dinamicamente com VOLANTES -->
+              </select>
+              <input type="text" class="form-control d-none" name="coberturaTexto" id="coberturaTexto" value="SEM COBERTURA" readonly>
+              <div class="invalid-feedback">Por favor, selecione a cobertura.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Data Início</label>
+              <input required type="date" class="form-control" name="dataInicio">
+              <div class="invalid-feedback">Por favor, insira a data de início.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Data Fim</label>
+              <input required type="date" class="form-control" name="dataFim">
+              <div class="invalid-feedback">Por favor, insira a data de fim.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label required">Motivo</label>
+              <select required class="form-select" name="motivo" id="motivoSelect">
+                <option value=""></option>
+                <option>Frequência insuficiente</option>
+                <option>Ausência por doença</option>
+                <option>Falta injustificada</option>
+                <option>Falecimento de familiar</option>
+                <option>Licença maternidade</option>
+                <option>Licença paternidade</option>
+                <option>Substituindo outro posto</option>
+                <option>Férias</option>
+                <option>Posto vago - Opção da Unidade Judiciária</option>
+                <option>Outros</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o motivo.</div>
+            </div>
+
+            <!-- Campos condicionais para Frequência Insuficiente -->
+            <div class="col-md-3 conditional-field" id="tipoFaltaField">
+              <label class="form-label">Tipo de Falta</label>
+              <select class="form-select" name="tipoFalta">
+                <option value=""></option>
+                <option>SAÍDA ANTECIPADA</option>
+                <option>ENTRADA TARDIA</option>
+              </select>
+            </div>
+            <div class="col-md-3 conditional-field" id="horarioField">
+              <label class="form-label">Horário</label>
+              <input type="time" class="form-control" name="horario">
+            </div>
+          </form>
+          <datalist id="dlistMatriculas"></datalist>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" id="btnSalvarAfa">
+            <i class="fas fa-save me-1"></i>Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Posto -->
+  <div class="modal fade" id="modalPosto" tabindex="-1" aria-labelledby="modalPostoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalPostoLabel"><i class="fas fa-building me-2"></i>Novo Posto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formPos" class="row g-3" novalidate>
+            <div class="col-md-6">
+              <label class="form-label required">Posto</label>
+              <input required class="form-control" name="posto" placeholder="Ex: SERVENTE, ENCARREGADO">
+              <div class="invalid-feedback">Por favor, insira o nome do posto.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Nº Posto</label>
+              <input required class="form-control" name="nroPosto" placeholder="Ex: 001, 002">
+              <div class="invalid-feedback">Por favor, insira o número do posto.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Turno</label>
+              <select required class="form-select" name="turno">
+                <option value=""></option>
+                <option>Matutino</option>
+                <option>Vespertino</option>
+                <option>Diurno</option>
+                <option>Noturno</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o turno.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Lotação</label>
+              <input required class="form-control" name="lotacao" placeholder="Ex: COMARCA DA CAPITAL - FORO CENTRAL">
+              <div class="invalid-feedback">Por favor, insira a lotação.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Supervisor</label>
+              <select required class="form-select" name="supervisor">
+                <option value=""></option>
+                <option>REGIÃO CHAPECÓ/CURITIBANOS</option>
+                <option>REGIÃO JOINVILLE</option>
+                <option>REGIÃO FLORIANÓPOLIS</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o supervisor.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label required">Status</label>
+              <select required class="form-select" name="status">
+                <option value=""></option>
+                <option>Ativo</option>
+                <option>Vago</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o status.</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" id="btnSalvarPos">
+            <i class="fas fa-save me-1"></i>Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  
+  <!-- App Script -->
+  <script>
+    // Dados das Lotações (Anexo I)
+    const lotacoes = [
+      { lotacao: "COMARCA DA CAPITAL - FORO CENTRAL", cidade: "Florianópolis" },
+      { lotacao: "COMARCA DA CAPITAL - FORO DES. EDUARDO LUZ", cidade: "Florianópolis" },
+      { lotacao: "COMARCA DA CAPITAL - FORO DISTRITAL DO CONTINENTE", cidade: "Florianópolis" },
+      { lotacao: "COMARCA DA CAPITAL - FORO DO NORTE DA ILHA", cidade: "Florianópolis" },
+      { lotacao: "COMARCA DA CAPITAL - FORUM ESTADUAL BANCARIO, DAS TURMAS RECURSAIS E DA UNIDADE REGIONAL DE EXECUCOES FISCAIS MUNICIPAIS", cidade: "Florianópolis" },
+      { lotacao: "COMARCA DE ABELARDO LUZ", cidade: "Abelardo Luz" },
+      { lotacao: "COMARCA DE ANCHIETA", cidade: "Anchieta" },
+      { lotacao: "COMARCA DE ANITA GARIBALDI", cidade: "Anita Garibaldi" },
+      { lotacao: "COMARCA DE ARAQUARI", cidade: "Araquari" },
+      { lotacao: "COMARCA DE ARARANGUA", cidade: "Araranguá" },
+      { lotacao: "COMARCA DE ARMAZEM", cidade: "Armazém" },
+      { lotacao: "COMARCA DE ASCURRA", cidade: "Ascurra" },
+      { lotacao: "COMARCA DE BALNEARIO CAMBORIU", cidade: "Balneário Camboriú" },
+      { lotacao: "COMARCA DE BALNEARIO PICARRAS", cidade: "Balneário Piçarras" },
+      { lotacao: "COMARCA DE BARRA VELHA", cidade: "Barra Velha" },
+      { lotacao: "COMARCA DE BIGUACU", cidade: "Biguaçu" },
+      { lotacao: "COMARCA DE BLUMENAU - FORO CENTRAL", cidade: "Blumenau" },
+      { lotacao: "COMARCA DE BLUMENAU - FORO UNIVERSITARIO", cidade: "Blumenau" },
+      { lotacao: "COMARCA DE BOM RETIRO", cidade: "Bom Retiro" },
+      { lotacao: "COMARCA DE BRACO DO NORTE", cidade: "Braço do Norte" },
+      { lotacao: "COMARCA DE BRUSQUE", cidade: "Brusque" },
+      { lotacao: "COMARCA DE CACADOR", cidade: "Caçador" },
+      { lotacao: "COMARCA DE CAMBORIU", cidade: "Camboriú" },
+      { lotacao: "COMARCA DE CAMPO BELO DO SUL", cidade: "Campo Belo do Sul" },
+      { lotacao: "COMARCA DE CAMPO ERE", cidade: "Campo Erê" },
+      { lotacao: "COMARCA DE CAMPOS NOVOS", cidade: "Campos Novos" },
+      { lotacao: "COMARCA DE CANOINHAS", cidade: "Canoinhas" },
+      { lotacao: "COMARCA DE CAPINZAL", cidade: "Capinzal" },
+      { lotacao: "COMARCA DE CAPIVARI DE BAIXO", cidade: "Capivari de Baixo" },
+      { lotacao: "COMARCA DE CATANDUVAS", cidade: "Catanduvas" },
+      { lotacao: "COMARCA DE CHAPECO", cidade: "Chapecó" },
+      { lotacao: "COMARCA DE CONCORDIA", cidade: "Concórdia" },
+      { lotacao: "COMARCA DE CORONEL FREITAS", cidade: "Coronel Freitas" },
+      { lotacao: "COMARCA DE CORREIA PINTO", cidade: "Correia Pinto" },
+      { lotacao: "COMARCA DE CRICIUMA", cidade: "Criciúma" },
+      { lotacao: "COMARCA DE CUNHA PORA", cidade: "Cunha Porã" },
+      { lotacao: "COMARCA DE CURITIBANOS", cidade: "Curitibanos" },
+      { lotacao: "COMARCA DE DESCANSO", cidade: "Descanso" },
+      { lotacao: "COMARCA DE DIONISIO CERQUEIRA", cidade: "Dionísio Cerqueira" },
+      { lotacao: "COMARCA DE FORQUILHINHA", cidade: "Forquilhinha" },
+      { lotacao: "COMARCA DE FRAIBURGO", cidade: "Fraiburgo" },
+      { lotacao: "COMARCA DE GAROPABA", cidade: "Garopaba" },
+      { lotacao: "COMARCA DE GARUVA", cidade: "Garuva" },
+      { lotacao: "COMARCA DE GASPAR", cidade: "Gaspar" },
+      { lotacao: "COMARCA DE GUARAMIRIM", cidade: "Guaramirim" },
+      { lotacao: "COMARCA DE HERVAL DO OESTE", cidade: "Herval D'Oeste" },
+      { lotacao: "COMARCA DE IBIRAMA", cidade: "Ibirama" },
+      { lotacao: "COMARCA DE ICARA", cidade: "Içara" },
+      { lotacao: "COMARCA DE IMARUI", cidade: "Imaruí" },
+      { lotacao: "COMARCA DE IMBITUBA", cidade: "Imbituba" },
+      { lotacao: "COMARCA DE INDAIAL", cidade: "Indaial" },
+      { lotacao: "COMARCA DE IPUMIRIM", cidade: "Ipumirim" },
+      { lotacao: "COMARCA DE ITA", cidade: "Itá" },
+      { lotacao: "COMARCA DE ITAIOPOLIS", cidade: "Itaiópolis" },
+      { lotacao: "COMARCA DE ITAJAI", cidade: "Itajaí" },
+      { lotacao: "COMARCA DE ITAPEMA", cidade: "Itapema" },
+      { lotacao: "COMARCA DE ITAPIRANGA", cidade: "Itapiranga" },
+      { lotacao: "COMARCA DE ITAPOA", cidade: "Itapoá" },
+      { lotacao: "COMARCA DE ITUPORANGA", cidade: "Ituporanga" },
+      { lotacao: "COMARCA DE JAGUARUNA", cidade: "Jaguaruna" },
+      { lotacao: "COMARCA DE JARAGUA DO SUL", cidade: "Jaraguá do Sul" },
+      { lotacao: "COMARCA DE JOACABA", cidade: "Joaçaba" },
+      { lotacao: "COMARCA DE JOINVILLE", cidade: "Joinville" },
+      { lotacao: "COMARCA DE JOINVILLE - FORO FAZENDARIO", cidade: "Joinville" },
+      { lotacao: "COMARCA DE LAGES", cidade: "Lages" },
+      { lotacao: "COMARCA DE LAGUNA", cidade: "Laguna" },
+      { lotacao: "COMARCA DE LAURO MULLER", cidade: "Lauro Müller" },
+      { lotacao: "COMARCA DE LEBON REGIS", cidade: "Lebon Régis" },
+      { lotacao: "COMARCA DE MAFRA", cidade: "Mafra" },
+      { lotacao: "COMARCA DE MARAVILHA", cidade: "Maravilha" },
+      { lotacao: "COMARCA DE MELEIRO", cidade: "Meleiro" },
+      { lotacao: "COMARCA DE MODELO", cidade: "Modelo" },
+      { lotacao: "COMARCA DE MONDAI", cidade: "Mondaí" },
+      { lotacao: "COMARCA DE NAVEGANTES", cidade: "Navegantes" },
+      { lotacao: "COMARCA DE ORLEANS", cidade: "Orleans" },
+      { lotacao: "COMARCA DE OTACILIO COSTA", cidade: "Otacílio Costa" },
+      { lotacao: "COMARCA DE PALHOCA", cidade: "Palhoça" },
+      { lotacao: "COMARCA DE PALMITOS", cidade: "Palmitos" },
+      { lotacao: "COMARCA DE PAPANDUVA", cidade: "Papanduva" },
+      { lotacao: "COMARCA DE PENHA", cidade: "Penha" },
+      { lotacao: "COMARCA DE PINHALZINHO", cidade: "Pinhalzinho" },
+      { lotacao: "COMARCA DE POMERODE", cidade: "Pomerode" },
+      { lotacao: "COMARCA DE PONTE SERRADA", cidade: "Ponte Serrada" },
+      { lotacao: "COMARCA DE PORTO BELO", cidade: "Porto Belo" },
+      { lotacao: "COMARCA DE PORTO UNIAO", cidade: "Porto União" },
+      { lotacao: "COMARCA DE PRESIDENTE GETULIO", cidade: "Presidente Getúlio" },
+      { lotacao: "COMARCA DE QUILOMBO", cidade: "Quilombo" },
+      { lotacao: "COMARCA DE RIO DO CAMPO", cidade: "Rio do Campo" },
+      { lotacao: "COMARCA DE RIO DO OESTE", cidade: "Rio do Oeste" },
+      { lotacao: "COMARCA DE RIO DO SUL", cidade: "Rio do Sul" },
+      { lotacao: "COMARCA DE RIO NEGRINHO", cidade: "Rio Negrinho" },
+      { lotacao: "COMARCA DE SANTA CECILIA", cidade: "Santa Cecília" },
+      { lotacao: "COMARCA DE SANTA ROSA DO SUL", cidade: "Santa Rosa do Sul" },
+      { lotacao: "COMARCA DE SANTO AMARO DA IMPERATRIZ", cidade: "Santo Amaro da Imperatriz" },
+      { lotacao: "COMARCA DE SAO BENTO DO SUL", cidade: "São Bento do Sul" },
+      { lotacao: "COMARCA DE SAO CARLOS", cidade: "São Carlos" },
+      { lotacao: "COMARCA DE SAO DOMINGOS", cidade: "São Domingos" },
+      { lotacao: "COMARCA DE SAO FRANCISCO DO SUL", cidade: "São Francisco do Sul" },
+      { lotacao: "COMARCA DE SAO JOAO BATISTA", cidade: "São João Batista" },
+      { lotacao: "COMARCA DE SAO JOAQUIM", cidade: "São Joaquim" },
+      { lotacao: "COMARCA DE SAO JOSE", cidade: "São José" },
+      { lotacao: "COMARCA DE SAO JOSE DO CEDRO", cidade: "São José do Cedro" },
+      { lotacao: "COMARCA DE SAO LOURENCO DO OESTE", cidade: "São Lourenço do Oeste" },
+      { lotacao: "COMARCA DE SAO MIGUEL DO OESTE", cidade: "São Miguel do Oeste" },
+      { lotacao: "COMARCA DE SEARA", cidade: "Seara" },
+      { lotacao: "COMARCA DE SOMBRIO", cidade: "Sombrio" },
+      { lotacao: "COMARCA DE TAIO", cidade: "Taió" },
+      { lotacao: "COMARCA DE TANGARA", cidade: "Tangará" },
+      { lotacao: "COMARCA DE TIJUCAS", cidade: "Tijucas" },
+      { lotacao: "COMARCA DE TIMBO", cidade: "Timbó" },
+      { lotacao: "COMARCA DE TROMBUDO CENTRAL", cidade: "Trombudo Central" },
+      { lotacao: "COMARCA DE TUBARAO", cidade: "Tubarão" },
+      { lotacao: "COMARCA DE TURVO", cidade: "Turvo" },
+      { lotacao: "COMARCA DE URUBICI", cidade: "Urubici" },
+      { lotacao: "COMARCA DE URUSSANGA", cidade: "Urussanga" },
+      { lotacao: "COMARCA DE VIDEIRA", cidade: "Videira" },
+      { lotacao: "COMARCA DE XANXERE", cidade: "Xanxerê" },
+      { lotacao: "COMARCA DE XAXIM", cidade: "Xaxim" },
+      { lotacao: "DGDM - DIVISAO DE ARQUIVO", cidade: "Palhoça" },
+      { lotacao: "DIE - DIVISAO DE SERVICOS GERAIS", cidade: "Florianópolis" },
+      { lotacao: "DMP - DIVISAO DE ALMOXARIFADO", cidade: "São José" },
+      { lotacao: "DMP - DIVISAO DE PATRIMONIO", cidade: "São José" },
+      { lotacao: "DSQV - DIRETORIA DE SAUDE E QUALIDADE DE VIDA", cidade: "Florianópolis" },
+      { lotacao: "DTI - DIVISAO DE SUPORTE E GESTAO DE ATIVOS DE TI", cidade: "São José" },
+      { lotacao: "GP/CEJUR - ACADEMIA JUDICIAL", cidade: "Florianópolis" }
+    ];
+
+    // Inicialização do aplicativo
+    document.addEventListener('DOMContentLoaded', function() {
+      // Atualizar data atual
+      document.getElementById('currentDate').textContent = dayjs().format('DD/MM/YYYY');
+      
+      // Configurar navegação entre seções
+      const navLinks = document.querySelectorAll('[data-section]');
+      const sections = document.querySelectorAll('.app-section');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Atualizar estado ativo da navegação
+          navLinks.forEach(nl => nl.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Mostrar seção correspondente
+          const targetId = this.getAttribute('href').substring(1);
+          sections.forEach(section => {
+            section.classList.add('d-none');
+            if (section.id === targetId) {
+              section.classList.remove('d-none');
+            }
+          });
+          
+          // Atualizar título da página
+          document.title = `BRA Serviços - CFVM - ${this.textContent.trim()}`;
+        });
+      });
+      
+      // Configurar botões de ação
+      document.getElementById('btnNovoTer').addEventListener('click', function() {
+        abrirModalTerceirizado();
+      });
+      
+      document.getElementById('btnNovoAfa').addEventListener('click', function() {
+        abrirModalAfastamento();
+      });
+      
+      document.getElementById('btnNovoPosto').addEventListener('click', function() {
+        abrirModalPosto();
+      });
+      
+      document.getElementById('btnCartaModal').addEventListener('click', function() {
+        abrirModalCarta();
+      });
+      
+      // Configurar botão Exportar CSV para terceirizados
+      document.getElementById('btnExportTer').addEventListener('click', function() {
+        exportarTerceirizadosCSV();
+      });
+      
+      // Configurar botões SALVAR corretamente
+      document.getElementById('btnSalvarTer').addEventListener('click', function() {
+        const form = document.getElementById('formTer');
+        
+        // Verificar validação
+        if (!form.checkValidity()) {
+          form.classList.add('was-validated');
+          return;
+        }
+        
+        // Coletar dados do formulário
+        const formData = new FormData(form);
+        const editId = document.getElementById('terceirizadoEditId').value;
+        const novo = {
+          id: editId || Date.now().toString(),
+          matricula: formData.get('matricula'),
+          nome: formData.get('nome'),
+          cpf: formData.get('cpf'),
+          sexo: formData.get('sexo'),
+          dataAdmissao: formData.get('dataAdmissao'),
+          ctps: formData.get('ctps'),
+          serieCtps: formData.get('serieCtps'),
+          profissao: formData.get('profissao'),
+          posto: formData.get('posto'),
+          ocupacao: formData.get('ocupacao'),
+          nroPosto: formData.get('nroPosto'),
+          nroSequencial: formData.get('nroSequencial'),
+          idPosto: formData.get('idPosto'),
+          turno: formData.get('turno'),
+          dataEntradaPosto: formData.get('dataEntradaPosto'),
+          dataSaidaPosto: formData.get('dataSaidaPosto'),
+          lotacaoMacro: formData.get('lotacaoMacro'),
+          lotacao: formData.get('lotacao'),
+          descritivoLotacao: formData.get('descritivoLotacao'),
+          cidade: formData.get('cidade'),
+          supervisor: formData.get('supervisor'),
+          // NOVOS CAMPOS
+          rg: formData.get('rg'),
+          orgaoExpedidor: formData.get('orgaoExpedidor'),
+          uf: formData.get('uf'),
+          pis: formData.get('pis'),
+          dataNascimento: formData.get('dataNascimento'),
+          nomeMae: formData.get('nomeMae'),
+          contato: formData.get('contato')
+        };
+        
+        // Salvar terceirizado
+        if (editId) {
+          atualizarTerceirizado(novo);
+        } else {
+          salvarTerceirizado(novo);
+        }
+        
+        // Fechar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalTerceirizado'));
+        modal.hide();
+        
+        // Mostrar mensagem de sucesso
+        showStatus(editId ? 'Terceirizado atualizado com sucesso!' : 'Terceirizado salvo com sucesso!', 'success');
+      });
+      
+      document.getElementById('btnSalvarAfa').addEventListener('click', function() {
+        const form = document.getElementById('formAfa');
+        
+        // Verificar validação
+        if (!form.checkValidity()) {
+          form.classList.add('was-validated');
+          return;
+        }
+        
+        // Coletar dados do formulário
+        const formData = new FormData(form);
+        const editId = document.getElementById('afastamentoEditId').value;
+        const novo = {
+          id: editId || gerarIdAfastamento(),
+          idPosto: document.getElementById('idPostoDisplay').textContent,
+          matricula: formData.get('matricula'),
+          nome: formData.get('nome'),
+          lotacao: formData.get('lotacao'),
+          posto: formData.get('posto'),
+          tipoSubstituicao: formData.get('tipoSubstituicao'),
+          cobertura: formData.get('tipoSubstituicao') === '1' ? formData.get('cobertura') : 'SEM COBERTURA',
+          dataInicio: formData.get('dataInicio'),
+          dataFim: formData.get('dataFim'),
+          motivo: formData.get('motivo'),
+          tipoFalta: formData.get('tipoFalta'),
+          horario: formData.get('horario')
+        };
+        
+        // Salvar afastamento
+        if (editId) {
+          atualizarAfastamento(novo);
+        } else {
+          salvarAfastamento(novo);
+        }
+        
+        // Fechar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalAfastamento'));
+        modal.hide();
+        
+        // Mostrar mensagem de sucesso
+        showStatus(editId ? 'Afastamento atualizado com sucesso!' : 'Afastamento salvo com sucesso!', 'success');
+      });
+      
+      // Configurar salvar posto
+      document.getElementById('btnSalvarPos').addEventListener('click', function() {
+        const form = document.getElementById('formPos');
+        
+        // Verificar validação
+        if (!form.checkValidity()) {
+          form.classList.add('was-validated');
+          return;
+        }
+        
+        // Coletar dados do formulário
+        const formData = new FormData(form);
+        const novo = {
+          id: Date.now().toString(),
+          posto: formData.get('posto'),
+          nroPosto: formData.get('nroPosto'),
+          turno: formData.get('turno'),
+          lotacao: formData.get('lotacao'),
+          supervisor: formData.get('supervisor'),
+          status: formData.get('status')
+        };
+        
+        // Salvar posto
+        salvarPosto(novo);
+        
+        // Fechar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalPosto'));
+        modal.hide();
+        
+        // Mostrar mensagem de sucesso
+        showStatus('Posto salvo com sucesso!', 'success');
+      });
+      
+      // Configurar importação de CSV
+      document.getElementById('btnProcessImport').addEventListener('click', function() {
+        const fileTer = document.getElementById('inpImportTer').files[0];
+        const fileAfa = document.getElementById('inpImportAfa').files[0];
+        const filePostos = document.getElementById('inpImportPostos').files[0];
+        
+        if (!fileTer && !fileAfa && !filePostos) {
+          showStatus('Selecione pelo menos um arquivo para importar', 'warning');
+          return;
+        }
+        
+        if (fileTer) {
+          processarCSVTerceirizados(fileTer);
+        }
+        
+        if (fileAfa) {
+          processarCSVAfastamentos(fileAfa);
+        }
+        
+        if (filePostos) {
+          processarCSVPostos(filePostos);
+        }
+      });
+      
+      // Configurar exibição de informações de arquivo
+      document.getElementById('inpImportTer').addEventListener('change', function() {
+        const fileInfo = document.getElementById('fileInfoTer');
+        if (this.files.length > 0) {
+          fileInfo.textContent = `Arquivo selecionado: ${this.files[0].name}`;
+          fileInfo.className = 'file-input-info text-success';
+        } else {
+          fileInfo.textContent = 'Nenhum arquivo selecionado';
+          fileInfo.className = 'file-input-info';
+        }
+      });
+      
+      document.getElementById('inpImportAfa').addEventListener('change', function() {
+        const fileInfo = document.getElementById('fileInfoAfa');
+        if (this.files.length > 0) {
+          fileInfo.textContent = `Arquivo selecionado: ${this.files[0].name}`;
+          fileInfo.className = 'file-input-info text-success';
+        } else {
+          fileInfo.textContent = 'Nenhum arquivo selecionado';
+          fileInfo.className = 'file-input-info';
+        }
+      });
+      
+      document.getElementById('inpImportPostos').addEventListener('change', function() {
+        const fileInfo = document.getElementById('fileInfoPostos');
+        if (this.files.length > 0) {
+          fileInfo.textContent = `Arquivo selecionado: ${this.files[0].name}`;
+          fileInfo.className = 'file-input-info text-success';
+        } else {
+          fileInfo.textContent = 'Nenhum arquivo selecionado';
+          fileInfo.className = 'file-input-info';
+        }
+      });
+      
+      // Configurar download de templates
+      document.getElementById('downloadTemplateTer').addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadTemplate('terceirizados');
+      });
+      
+      document.getElementById('downloadTemplateAfa').addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadTemplate('afastamentos');
+      });
+      
+      document.getElementById('downloadTemplatePostos').addEventListener('click', function(e) {
+        e.preventDefault();
+        downloadTemplate('postos');
+      });
+      
+      // Configurar relatórios - implementar funcionalidades
+      document.querySelectorAll('[data-relatorio]').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const relatorio = this.getAttribute('data-relatorio');
+          const exportType = this.getAttribute('data-export');
+          
+          if (exportType) {
+            gerarRelatorio(relatorio, exportType);
+          } else {
+            visualizarRelatorio(relatorio);
+          }
+        });
+      });
+      
+      // Configurar botão de exportar todos relatórios
+      document.getElementById('btnExportAllRelatorios').addEventListener('click', function() {
+        exportarTodosRelatorios();
+      });
+      
+      // Configurar filtros de relatórios
+      document.getElementById('btnAplicarFiltrosRelatorios').addEventListener('click', function() {
+        aplicarFiltrosRelatorios();
+      });
+      
+      document.getElementById('btnLimparFiltrosRelatorios').addEventListener('click', function() {
+        limparFiltrosRelatorios();
+      });
+      
+      // Configurar busca de afastamento para carta
+      document.getElementById('btnBuscarAfastamento').addEventListener('click', function() {
+        const idAfastamento = document.getElementById('cartaIdAfastamento').value;
+        if (!idAfastamento) {
+          showStatus('Por favor, digite o ID do afastamento', 'warning');
+          return;
+        }
+        
+        preencherCartaAfastamento(idAfastamento);
+      });
+      
+      // Configurar geração de carta - PDF e DOCX funcionais
+      document.getElementById('btnCartaPDF').addEventListener('click', function() {
+        gerarCarta('pdf');
+      });
+      
+      document.getElementById('btnCartaDOCX').addEventListener('click', function() {
+        gerarCarta('docx');
+      });
+      
+      // Configurar busca por matrícula em terceirizados
+      document.getElementById('searchTerceirizados').addEventListener('input', function() {
+        filtrarTerceirizados(this.value);
+      });
+      
+      document.getElementById('btnClearSearchTer').addEventListener('click', function() {
+        document.getElementById('searchTerceirizados').value = '';
+        filtrarTerceirizados('');
+      });
+      
+      // Configurar busca por matrícula em afastamentos
+      document.getElementById('searchAfastamentos').addEventListener('input', function() {
+        filtrarAfastamentos(this.value);
+      });
+      
+      document.getElementById('btnClearSearchAfa').addEventListener('click', function() {
+        document.getElementById('searchAfastamentos').value = '';
+        filtrarAfastamentos('');
+      });
+      
+      // Popular lista de lotações
+      const lotacaoSelect = document.getElementById('lotacaoSelect');
+      lotacoes.forEach(lotacao => {
+        const option = document.createElement('option');
+        option.value = lotacao.lotacao;
+        option.textContent = lotacao.lotacao;
+        option.setAttribute('data-cidade', lotacao.cidade);
+        lotacaoSelect.appendChild(option);
+      });
+      
+      // Configurar autopreenchimento de cidade baseado na lotação
+      lotacaoSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const cidade = selectedOption.getAttribute('data-cidade');
+        document.getElementById('cidadeInput').value = cidade || '';
+      });
+      
+      // Configurar sincronização entre profissão e posto
+      const profissaoSelect = document.getElementById('profissaoSelect');
+      const postoSelect = document.getElementById('postoSelect');
+      
+      profissaoSelect.addEventListener('change', function() {
+        postoSelect.value = this.value;
+      });
+      
+      postoSelect.addEventListener('change', function() {
+        profissaoSelect.value = this.value;
+      });
+      
+      // Configurar campos condicionais para terceirizados (VOLANTE vs TITULAR)
+      const ocupacaoSelect = document.getElementById('ocupacaoSelect');
+      const volanteFields = document.querySelectorAll('.volante-only');
+      
+      ocupacaoSelect.addEventListener('change', function() {
+        const isVolante = this.value === 'VOLANTE';
+        
+        volanteFields.forEach(field => {
+          if (isVolante) {
+            field.style.display = 'none';
+            // Remover obrigatoriedade dos campos
+            const inputs = field.querySelectorAll('input, select');
+            inputs.forEach(input => {
+              input.required = false;
+            });
+          } else {
+            field.style.display = 'block';
+            // Restaurar obrigatoriedade dos campos
+            const inputs = field.querySelectorAll('input, select');
+            inputs.forEach(input => {
+              if (field.id !== 'dataSaidaPostoField') { // Data de saída não é obrigatória
+                input.required = true;
+              }
+            });
+          }
+        });
+      });
+      
+      // Configurar geração automática de CTPS e Série CTPS
+      const cpfInput = document.getElementById('cpfInput');
+      const ctpsInput = document.getElementById('ctpsInput');
+      const serieCtpsInput = document.getElementById('serieCtpsInput');
+      
+      cpfInput.addEventListener('input', function() {
+        const cpf = this.value.replace(/\D/g, '');
+        if (cpf.length === 11) {
+          ctpsInput.value = cpf.substring(0, 7);
+          serieCtpsInput.value = cpf.substring(7);
+        } else {
+          ctpsInput.value = '';
+          serieCtpsInput.value = '';
+        }
+      });
+      
+      // Configurar geração automática do ID do Posto
+      const nroPostoInput = document.getElementById('nroPostoInput');
+      
+      function atualizarIdPosto() {
+        const posto = postoSelect.value;
+        const nroPosto = nroPostoInput.value;
+        const nroSequencial = '1'; // Valor fixo conforme solicitado
+        const nroContrato = '2'; // Valor fixo conforme solicitado
+        const anoContrato = '2023'; // Valor fixo conforme solicitado
+        
+        if (posto && nroPosto) {
+          document.getElementById('idPostoInput').value = `${posto}-${nroPosto}-${nroSequencial}-${nroContrato}-${anoContrato}`;
+        } else {
+          document.getElementById('idPostoInput').value = '';
+        }
+      }
+      
+      postoSelect.addEventListener('change', atualizarIdPosto);
+      nroPostoInput.addEventListener('input', atualizarIdPosto);
+      
+      // Configurar máscara para campo de contato (DDD + Número)
+      const contatoInput = document.getElementById('contatoInput');
+      
+      contatoInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        
+        if (value.length > 0) {
+          value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+          if (value.length > 10) {
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+          }
+        }
+        
+        this.value = value;
+      });
+      
+      // Configurar lógica condicional para afastamentos
+      const tipoSubstituicao = document.getElementById('tipoSubstituicao');
+      const coberturaSelect = document.getElementById('coberturaSelect');
+      const coberturaTexto = document.getElementById('coberturaTexto');
+      const motivoSelect = document.getElementById('motivoSelect');
+      const tipoFaltaField = document.getElementById('tipoFaltaField');
+      const horarioField = document.getElementById('horarioField');
+      
+      tipoSubstituicao.addEventListener('change', function() {
+        if (this.value === '1') {
+          // Com Volante
+          coberturaSelect.classList.remove('d-none');
+          coberturaTexto.classList.add('d-none');
+          coberturaSelect.required = true;
+          coberturaTexto.required = false;
+          
+          // Atualizar lista de coberturas com VOLANTES
+          atualizarListaCoberturas();
+        } else if (this.value === '2') {
+          // Sem Volante
+          coberturaSelect.classList.add('d-none');
+          coberturaTexto.classList.remove('d-none');
+          coberturaSelect.required = false;
+          coberturaTexto.required = true;
+        } else {
+          coberturaSelect.classList.add('d-none');
+          coberturaTexto.classList.add('d-none');
+          coberturaSelect.required = false;
+          coberturaTexto.required = false;
+        }
+      });
+      
+      motivoSelect.addEventListener('change', function() {
+        if (this.value === 'Frequência insuficiente') {
+          tipoFaltaField.style.display = 'block';
+          horarioField.style.display = 'block';
+        } else {
+          tipoFaltaField.style.display = 'none';
+          horarioField.style.display = 'none';
+        }
+      });
+      
+      // Configurar preenchimento automático de dados do terceirizado no afastamento
+      const matriculaAfastamento = document.getElementById('matriculaAfastamento');
+      const nomeAfastamento = document.getElementById('nomeAfastamento');
+      const lotacaoAfastamento = document.getElementById('lotacaoAfastamento');
+      const postoAfastamento = document.getElementById('postoAfastamento');
+      const idPostoDisplay = document.getElementById('idPostoDisplay');
+      
+      // Simular dados de terceirizados para demonstração
+      const terceirizados = [
+        { 
+          id: '1',
+          matricula: 'BRA001', 
+          nome: 'João Silva', 
+          lotacao: 'COMARCA DA CAPITAL - FORO CENTRAL', 
+          posto: 'SERVENTE',
+          nroPosto: '001',
+          sequencial: '1',
+          ano: '2023',
+          cpf: '12345678901',
+          sexo: 'M',
+          profissao: 'SERVENTE',
+          ocupacao: 'TITULAR',
+          supervisor: 'CARLOS ADRYEL',
+          turno: 'Matutino',
+          dataEntradaPosto: '2024-01-15',
+          dataSaidaPosto: '',
+          // NOVOS CAMPOS
+          rg: '1234567',
+          orgaoExpedidor: 'SSP',
+          uf: 'SC',
+          pis: '12345678901',
+          dataNascimento: '1980-01-01',
+          nomeMae: 'Maria Silva',
+          contato: '(47) 99999-9999'
+        },
+        { 
+          id: '2',
+          matricula: 'BRA002', 
+          nome: 'Maria Santos', 
+          lotacao: 'COMARCA DE FLORIANÓPOLIS', 
+          posto: 'ENCARREGADO',
+          nroPosto: '002',
+          sequencial: '1',
+          ano: '2023',
+          cpf: '98765432109',
+          sexo: 'F',
+          profissao: 'ENCARREGADO',
+          ocupacao: 'VOLANTE',
+          supervisor: 'ROSANGELA',
+          turno: 'Vespertino',
+          dataEntradaPosto: '2024-02-20',
+          dataSaidaPosto: '',
+          // NOVOS CAMPOS
+          rg: '7654321',
+          orgaoExpedidor: 'SSP',
+          uf: 'SC',
+          pis: '98765432109',
+          dataNascimento: '1985-05-15',
+          nomeMae: 'Ana Santos',
+          contato: '(47) 98888-8888'
+        }
+      ];
+      
+      // Dados de afastamentos
+      const afastamentos = [];
+      
+      // Dados de postos
+      const postos = [];
+      
+      // Popular datalist de matrículas
+      const dlistMatriculas = document.getElementById('dlistMatriculas');
+      terceirizados.forEach(ter => {
+        const option = document.createElement('option');
+        option.value = ter.matricula;
+        option.setAttribute('data-nome', ter.nome);
+        option.setAttribute('data-lotacao', ter.lotacao);
+        option.setAttribute('data-posto', ter.posto);
+        option.setAttribute('data-nroposto', ter.nroPosto);
+        option.setAttribute('data-sequencial', ter.sequencial);
+        option.setAttribute('data-ano', ter.ano);
+        dlistMatriculas.appendChild(option);
+      });
+      
+      matriculaAfastamento.addEventListener('input', function() {
+        const matricula = this.value;
+        const terceirizado = terceirizados.find(t => t.matricula === matricula);
+        
+        if (terceirizado) {
+          nomeAfastamento.value = terceirizado.nome;
+          lotacaoAfastamento.value = terceirizado.lotacao;
+          postoAfastamento.value = terceirizado.posto;
+          
+          // Gerar ID do Posto automaticamente
+          const idPosto = `${terceirizado.posto}-${terceirizado.nroPosto}-${terceirizado.sequencial}-2-${terceirizado.ano}`;
+          idPostoDisplay.textContent = idPosto;
+        } else {
+          nomeAfastamento.value = '';
+          lotacaoAfastamento.value = '';
+          postoAfastamento.value = '';
+          idPostoDisplay.textContent = 'Gerado automaticamente';
+        }
+      });
+      
+      // Função para atualizar lista de coberturas com VOLANTES
+      function atualizarListaCoberturas() {
+        // Limpar lista atual
+        coberturaSelect.innerHTML = '<option value=""></option>';
+        
+        // Adicionar apenas terceirizados com ocupação VOLANTE
+        const volantes = terceirizados.filter(t => t.ocupacao === 'VOLANTE');
+        volantes.forEach(volante => {
+          const option = document.createElement('option');
+          option.value = volante.nome;
+          option.textContent = `${volante.matricula} - ${volante.nome}`;
+          coberturaSelect.appendChild(option);
+        });
+        
+        if (volantes.length === 0) {
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = 'Nenhum volante disponível';
+          option.disabled = true;
+          coberturaSelect.appendChild(option);
+        }
+      }
+      
+      // Configurar botões de ação adicionais
+      document.getElementById('btnAddFirstTer').addEventListener('click', function() {
+        document.getElementById('btnNovoTer').click();
+      });
+      
+      document.getElementById('btnAddFirstAfa').addEventListener('click', function() {
+        document.getElementById('btnNovoAfa').click();
+      });
+      
+      document.getElementById('btnAddFirstPosto').addEventListener('click', function() {
+        document.getElementById('btnNovoPosto').click();
+      });
+      
+      // Função para mostrar mensagens de status
+      window.showStatus = function(message, type = 'info') {
+        const statusEl = document.getElementById('statusMessage');
+        const statusText = document.getElementById('statusText');
+        
+        statusEl.className = `status-message alert alert-${type} alert-dismissible fade show`;
+        statusText.textContent = message;
+        
+        // Auto-ocultar após 5 segundos
+        setTimeout(() => {
+          const bsAlert = new bootstrap.Alert(statusEl);
+          bsAlert.close();
+        }, 5000);
+      };
+      
+      // Função para mostrar/ocultar loading
+      window.toggleLoading = function(show) {
+        const loadingEl = document.getElementById('loadingOverlay');
+        if (show) {
+          loadingEl.classList.remove('d-none');
+        } else {
+          loadingEl.classList.add('d-none');
+        }
+      };
+      
+      // Função para gerar ID sequencial para afastamentos
+      function gerarIdAfastamento() {
+        // Buscar o maior ID atual
+        const ids = afastamentos.map(a => parseInt(a.id) || 0);
+        const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+        
+        // Gerar novo ID sequencial
+        const novoId = maxId + 1;
+        return novoId.toString().padStart(3, '0');
+      }
+      
+      // Função para abrir modal de afastamento (novo ou edição)
+      function abrirModalAfastamento(dados = null) {
+        const modal = new bootstrap.Modal(document.getElementById('modalAfastamento'));
+        const form = document.getElementById('formAfa');
+        
+        // Limpar formulário
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        // Resetar campos condicionais
+        tipoFaltaField.style.display = 'none';
+        horarioField.style.display = 'none';
+        
+        if (dados) {
+          // Modo edição
+          document.getElementById('modalAfastamentoLabel').textContent = 'Alterar Afastamento';
+          document.getElementById('afastamentoEditId').value = dados.id;
+          document.getElementById('matriculaAfastamento').value = dados.matricula;
+          document.getElementById('nomeAfastamento').value = dados.nome;
+          document.getElementById('lotacaoAfastamento').value = dados.lotacao;
+          document.getElementById('postoAfastamento').value = dados.posto;
+          document.getElementById('idPostoDisplay').textContent = dados.idPosto;
+          document.getElementById('tipoSubstituicao').value = dados.tipoSubstituicao;
+          document.getElementById('coberturaSelect').value = dados.cobertura;
+          document.getElementById('coberturaTexto').value = dados.cobertura;
+          form.querySelector('[name="dataInicio"]').value = dados.dataInicio;
+          form.querySelector('[name="dataFim"]').value = dados.dataFim;
+          document.getElementById('motivoSelect').value = dados.motivo;
+          form.querySelector('[name="tipoFalta"]').value = dados.tipoFalta || '';
+          form.querySelector('[name="horario"]').value = dados.horario || '';
+          
+          // Atualizar campos condicionais
+          if (dados.tipoSubstituicao === '1') {
+            coberturaSelect.classList.remove('d-none');
+            coberturaTexto.classList.add('d-none');
+          } else {
+            coberturaSelect.classList.add('d-none');
+            coberturaTexto.classList.remove('d-none');
+          }
+          
+          if (dados.motivo === 'Frequência insuficiente') {
+            tipoFaltaField.style.display = 'block';
+            horarioField.style.display = 'block';
+          }
+        } else {
+          // Modo novo
+          document.getElementById('modalAfastamentoLabel').textContent = 'Novo Afastamento';
+          document.getElementById('afastamentoEditId').value = '';
+        }
+        
+        modal.show();
+      }
+      
+      // Função para abrir modal de posto
+      function abrirModalPosto(dados = null) {
+        const modal = new bootstrap.Modal(document.getElementById('modalPosto'));
+        const form = document.getElementById('formPos');
+        
+        // Limpar formulário
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        if (dados) {
+          // Modo edição
+          document.getElementById('modalPostoLabel').textContent = 'Alterar Posto';
+          form.querySelector('[name="posto"]').value = dados.posto;
+          form.querySelector('[name="nroPosto"]').value = dados.nroPosto;
+          form.querySelector('[name="turno"]').value = dados.turno;
+          form.querySelector('[name="lotacao"]').value = dados.lotacao;
+          form.querySelector('[name="supervisor"]').value = dados.supervisor;
+          form.querySelector('[name="status"]').value = dados.status;
+        } else {
+          // Modo novo
+          document.getElementById('modalPostoLabel').textContent = 'Novo Posto';
+        }
+        
+        modal.show();
+      }
+      
+      // Função para abrir modal de carta
+      function abrirModalCarta() {
+        const modal = new bootstrap.Modal(document.getElementById('cartaModal'));
+        
+        // Limpar formulário
+        document.getElementById('formCarta').reset();
+        
+        modal.show();
+      }
+      
+      // Função para abrir modal de terceirizado (novo ou edição)
+      function abrirModalTerceirizado(dados = null) {
+        const modal = new bootstrap.Modal(document.getElementById('modalTerceirizado'));
+        const form = document.getElementById('formTer');
+        
+        // Limpar formulário
+        form.reset();
+        form.classList.remove('was-validated');
+        
+        // Resetar campos condicionais
+        const volanteFields = document.querySelectorAll('.volante-only');
+        volanteFields.forEach(field => {
+          field.style.display = 'block';
+        });
+        
+        if (dados) {
+          // Modo edição
+          document.getElementById('modalTerceirizadoTitle').textContent = 'Alterar Terceirizado';
+          document.getElementById('terceirizadoEditId').value = dados.id;
+          document.getElementById('matriculaInput').value = dados.matricula;
+          document.getElementById('nomeInput').value = dados.nome;
+          document.getElementById('cpfInput').value = dados.cpf;
+          document.getElementById('sexoSelect').value = dados.sexo;
+          document.getElementById('dataAdmissaoInput').value = dados.dataAdmissao;
+          document.getElementById('ctpsInput').value = dados.ctps;
+          document.getElementById('serieCtpsInput').value = dados.serieCtps;
+          document.getElementById('profissaoSelect').value = dados.profissao;
+          document.getElementById('postoSelect').value = dados.posto;
+          document.getElementById('ocupacaoSelect').value = dados.ocupacao;
+          document.getElementById('nroPostoInput').value = dados.nroPosto;
+          document.getElementById('idPostoInput').value = dados.idPosto;
+          document.getElementById('turnoSelect').value = dados.turno;
+          document.getElementById('dataEntradaPostoInput').value = dados.dataEntradaPosto;
+          document.getElementById('dataSaidaPostoInput').value = dados.dataSaidaPosto;
+          document.getElementById('lotacaoMacroSelect').value = dados.lotacaoMacro;
+          document.getElementById('lotacaoSelect').value = dados.lotacao;
+          document.getElementById('descritivoLotacaoInput').value = dados.descritivoLotacao;
+          document.getElementById('cidadeInput').value = dados.cidade;
+          document.getElementById('supervisorSelect').value = dados.supervisor;
+          // NOVOS CAMPOS
+          document.getElementById('rgInput').value = dados.rg || '';
+          document.getElementById('orgaoExpedidorInput').value = dados.orgaoExpedidor || '';
+          document.getElementById('ufSelect').value = dados.uf || '';
+          document.getElementById('pisInput').value = dados.pis || '';
+          document.getElementById('dataNascimentoInput').value = dados.dataNascimento || '';
+          document.getElementById('nomeMaeInput').value = dados.nomeMae || '';
+          document.getElementById('contatoInput').value = dados.contato || '';
+          
+          // Aplicar lógica de campos condicionais
+          document.getElementById('ocupacaoSelect').dispatchEvent(new Event('change'));
+        } else {
+          // Modo novo
+          document.getElementById('modalTerceirizadoTitle').textContent = 'Novo Terceirizado';
+          document.getElementById('terceirizadoEditId').value = '';
+        }
+        
+        modal.show();
+      }
+      
+      // Função para exportar terceirizados em CSV
+      function exportarTerceirizadosCSV() {
+        if (terceirizados.length === 0) {
+          showStatus('Não há terceirizados para exportar', 'warning');
+          return;
+        }
+        
+        // Cabeçalhos do CSV
+        const headers = [
+          'Matrícula', 'Nome', 'CPF', 'Sexo', 'Data Admissão', 'CTPS', 'Série CTPS',
+          'Profissão', 'Ocupação', 'Posto', 'Nº Posto', 'ID Posto', 'Turno',
+          'Data Entrada Posto', 'Data Saída Posto', 'Lotação Macro', 'Lotação', 
+          'Descritivo Lotação', 'Supervisor', 'RG', 'Órgão Expedidor', 
+          'UF', 'PIS', 'Data Nascimento', 'Nome Mãe', 'Contato'
+        ];
+        
+        // Converter dados para CSV
+        let csvContent = headers.join(',') + '\n';
+        
+        terceirizados.forEach(ter => {
+          const row = [
+            ter.matricula,
+            ter.nome,
+            ter.cpf,
+            ter.sexo,
+            ter.dataAdmissao,
+            ter.ctps,
+            ter.serieCtps,
+            ter.profissao,
+            ter.ocupacao,
+            ter.posto,
+            ter.nroPosto,
+            ter.idPosto,
+            ter.turno,
+            ter.dataEntradaPosto,
+            ter.dataSaidaPosto,
+            ter.lotacaoMacro,
+            ter.lotacao,
+            ter.descritivoLotacao,
+            ter.supervisor,
+            // NOVOS CAMPOS
+            ter.rg,
+            ter.orgaoExpedidor,
+            ter.uf,
+            ter.pis,
+            ter.dataNascimento,
+            ter.nomeMae,
+            ter.contato
+          ].map(field => `"${field || ''}"`).join(',');
+          
+          csvContent += row + '\n';
+        });
+        
+        // Criar e baixar arquivo
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `terceirizados_${dayjs().format('YYYY-MM-DD')}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showStatus('Terceirizados exportados com sucesso!', 'success');
+      }
+      
+      // Função para salvar terceirizado
+      function salvarTerceirizado(dados) {
+        const tbody = document.getElementById('terceirizadosTableBody');
+        
+        // Remover estado vazio se existir
+        if (tbody.children.length === 1 && tbody.children[0].querySelector('.empty-state')) {
+          tbody.innerHTML = '';
+        }
+        
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', dados.id);
+        row.innerHTML = `
+          <td>${dados.matricula}</td>
+          <td>${dados.nome}</td>
+          <td class="d-none d-md-table-cell">${dados.cpf}</td>
+          <td><span class="badge ${dados.ocupacao === 'TITULAR' ? 'bg-primary' : 'bg-info'}">${dados.ocupacao}</span></td>
+          <td class="d-none d-sm-table-cell">${dados.posto}</td>
+          <td class="d-none d-lg-table-cell">${dados.idPosto}</td>
+          <td class="d-none d-xl-table-cell">${dados.supervisor}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary btn-editar-terceirizado" title="Editar" data-id="${dados.id}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-excluir-terceirizado" title="Excluir" data-id="${dados.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+        
+        // Adicionar evento de edição
+        row.querySelector('.btn-editar-terceirizado').addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const terceirizado = terceirizados.find(t => t.id === id);
+          if (terceirizado) {
+            abrirModalTerceirizado(terceirizado);
+          }
+        });
+        
+        // Adicionar evento de exclusão
+        row.querySelector('.btn-excluir-terceirizado').addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          excluirTerceirizado(id);
+        });
+        
+        // Atualizar contador
+        document.getElementById('cardTerceirizados').textContent = tbody.children.length;
+        
+        // Adicionar aos dados
+        terceirizados.push(dados);
+      }
+      
+      // Função para excluir terceirizado
+      function excluirTerceirizado(id) {
+        if (confirm('Tem certeza que deseja excluir este terceirizado?')) {
+          // Remover da tabela
+          const row = document.querySelector(`tr[data-id="${id}"]`);
+          if (row) {
+            row.remove();
+          }
+          
+          // Remover dos dados
+          const index = terceirizados.findIndex(t => t.id === id);
+          if (index !== -1) {
+            terceirizados.splice(index, 1);
+          }
+          
+          // Atualizar contador
+          document.getElementById('cardTerceirizados').textContent = terceirizados.length;
+          
+          // Mostrar estado vazio se necessário
+          if (terceirizados.length === 0) {
+            const tbody = document.getElementById('terceirizadosTableBody');
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="8" class="text-center py-4">
+                  <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <p>Nenhum terceirizado cadastrado</p>
+                    <button class="btn btn-primary mt-2" id="btnAddFirstTer">
+                      <i class="fas fa-plus me-1"></i>Adicionar Primeiro Terceirizado
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+            
+            // Reconfigurar botão
+            document.getElementById('btnAddFirstTer').addEventListener('click', function() {
+              document.getElementById('btnNovoTer').click();
+            });
+          }
+          
+          showStatus('Terceirizado excluído com sucesso!', 'success');
+        }
+      }
+      
+      // Função para atualizar terceirizado
+      function atualizarTerceirizado(dados) {
+        const row = document.querySelector(`tr[data-id="${dados.id}"]`);
+        if (row) {
+          row.innerHTML = `
+            <td>${dados.matricula}</td>
+            <td>${dados.nome}</td>
+            <td class="d-none d-md-table-cell">${dados.cpf}</td>
+            <td><span class="badge ${dados.ocupacao === 'TITULAR' ? 'bg-primary' : 'bg-info'}">${dados.ocupacao}</span></td>
+            <td class="d-none d-sm-table-cell">${dados.posto}</td>
+            <td class="d-none d-lg-table-cell">${dados.idPosto}</td>
+            <td class="d-none d-xl-table-cell">${dados.supervisor}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary btn-editar-terceirizado" title="Editar" data-id="${dados.id}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-excluir-terceirizado" title="Excluir" data-id="${dados.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          `;
+          
+          // Adicionar evento de edição
+          row.querySelector('.btn-editar-terceirizado').addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const terceirizado = terceirizados.find(t => t.id === id);
+            if (terceirizado) {
+              abrirModalTerceirizado(terceirizado);
+            }
+          });
+          
+          // Adicionar evento de exclusão
+          row.querySelector('.btn-excluir-terceirizado').addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            excluirTerceirizado(id);
+          });
+          
+          // Atualizar nos dados
+          const index = terceirizados.findIndex(t => t.id === dados.id);
+          if (index !== -1) {
+            terceirizados[index] = dados;
+          }
+        }
+      }
+      
+      // Função para filtrar terceirizados por matrícula
+      function filtrarTerceirizados(matricula) {
+        const tbody = document.getElementById('terceirizadosTableBody');
+        const rows = tbody.querySelectorAll('tr[data-id]');
+        
+        rows.forEach(row => {
+          const matriculaCell = row.querySelector('td:first-child');
+          if (matriculaCell) {
+            const matriculaText = matriculaCell.textContent.toLowerCase();
+            if (matriculaText.includes(matricula.toLowerCase())) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          }
+        });
+      }
+      
+      // Função para salvar posto
+      function salvarPosto(dados) {
+        const tbody = document.getElementById('postosTableBody');
+        
+        // Remover estado vazio se existir
+        if (tbody.children.length === 1 && tbody.children[0].querySelector('.empty-state')) {
+          tbody.innerHTML = '';
+        }
+        
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', dados.id);
+        row.innerHTML = `
+          <td>${dados.posto}</td>
+          <td>${dados.nroPosto}</td>
+          <td>${dados.turno}</td>
+          <td>${dados.lotacao}</td>
+          <td>${dados.supervisor}</td>
+          <td><span class="badge ${dados.status === 'Ativo' ? 'bg-success' : 'bg-warning'}">${dados.status}</span></td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary btn-editar-posto" title="Editar" data-id="${dados.id}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-outline-danger" title="Excluir">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+        
+        // Adicionar evento de edição
+        row.querySelector('.btn-editar-posto').addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const posto = postos.find(p => p.id === id);
+          if (posto) {
+            abrirModalPosto(posto);
+          }
+        });
+        
+        // Atualizar contador
+        document.getElementById('cardPostos').textContent = tbody.children.length;
+        
+        // Adicionar aos dados
+        postos.push(dados);
+      }
+      
+      // Função para salvar afastamento
+      function salvarAfastamento(dados) {
+        const tbody = document.getElementById('afastamentosTableBody');
+        
+        // Remover estado vazio se existir
+        if (tbody.children.length === 1 && tbody.children[0].querySelector('.empty-state')) {
+          tbody.innerHTML = '';
+        }
+        
+        const periodo = `${dados.dataInicio} a ${dados.dataFim}`;
+        
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', dados.id);
+        row.innerHTML = `
+          <td>${dados.id}</td>
+          <td>${dados.matricula}</td>
+          <td>${dados.nome}</td>
+          <td>${periodo}</td>
+          <td>${dados.motivo}</td>
+          <td class="d-none d-md-table-cell">${dados.cobertura}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-primary btn-editar-afastamento" title="Editar" data-id="${dados.id}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-excluir-afastamento" title="Excluir" data-id="${dados.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+        
+        // Adicionar evento de edição
+        row.querySelector('.btn-editar-afastamento').addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const afastamento = afastamentos.find(a => a.id === id);
+          if (afastamento) {
+            abrirModalAfastamento(afastamento);
+          }
+        });
+        
+        // Adicionar evento de exclusão
+        row.querySelector('.btn-excluir-afastamento').addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          excluirAfastamento(id);
+        });
+        
+        // Atualizar contador
+        document.getElementById('cardAfastamentos').textContent = tbody.children.length;
+        
+        // Adicionar aos dados
+        afastamentos.push(dados);
+      }
+      
+      // Função para excluir afastamento
+      function excluirAfastamento(id) {
+        if (confirm('Tem certeza que deseja excluir este afastamento?')) {
+          // Remover da tabela
+          const row = document.querySelector(`tr[data-id="${id}"]`);
+          if (row) {
+            row.remove();
+          }
+          
+          // Remover dos dados
+          const index = afastamentos.findIndex(a => a.id === id);
+          if (index !== -1) {
+            afastamentos.splice(index, 1);
+          }
+          
+          // Atualizar contador
+          document.getElementById('cardAfastamentos').textContent = afastamentos.length;
+          
+          // Mostrar estado vazio se necessário
+          if (afastamentos.length === 0) {
+            const tbody = document.getElementById('afastamentosTableBody');
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="7" class="text-center py-4">
+                  <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>Nenhum afastamento cadastrado</p>
+                    <button class="btn btn-primary mt-2" id="btnAddFirstAfa">
+                      <i class="fas fa-plus me-1"></i>Adicionar Primeiro Afastamento
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+            
+            // Reconfigurar botão
+            document.getElementById('btnAddFirstAfa').addEventListener('click', function() {
+              document.getElementById('btnNovoAfa').click();
+            });
+          }
+          
+          showStatus('Afastamento excluído com sucesso!', 'success');
+        }
+      }
+      
+      // Função para filtrar afastamentos por matrícula
+      function filtrarAfastamentos(matricula) {
+        const tbody = document.getElementById('afastamentosTableBody');
+        const rows = tbody.querySelectorAll('tr[data-id]');
+        
+        rows.forEach(row => {
+          const matriculaCell = row.querySelector('td:nth-child(2)');
+          if (matriculaCell) {
+            const matriculaText = matriculaCell.textContent.toLowerCase();
+            if (matriculaText.includes(matricula.toLowerCase())) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          }
+        });
+      }
+      
+      // Função para atualizar afastamento
+      function atualizarAfastamento(dados) {
+        const row = document.querySelector(`tr[data-id="${dados.id}"]`);
+        if (row) {
+          const periodo = `${dados.dataInicio} a ${dados.dataFim}`;
+          
+          row.innerHTML = `
+            <td>${dados.id}</td>
+            <td>${dados.matricula}</td>
+            <td>${dados.nome}</td>
+            <td>${periodo}</td>
+            <td>${dados.motivo}</td>
+            <td class="d-none d-md-table-cell">${dados.cobertura}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary btn-editar-afastamento" title="Editar" data-id="${dados.id}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-excluir-afastamento" title="Excluir" data-id="${dados.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          `;
+          
+          // Adicionar evento de edição
+          row.querySelector('.btn-editar-afastamento').addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const afastamento = afastamentos.find(a => a.id === id);
+            if (afastamento) {
+              abrirModalAfastamento(afastamento);
+            }
+          });
+          
+          // Adicionar evento de exclusão
+          row.querySelector('.btn-excluir-afastamento').addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            excluirAfastamento(id);
+          });
+          
+          // Atualizar nos dados
+          const index = afastamentos.findIndex(a => a.id === dados.id);
+          if (index !== -1) {
+            afastamentos[index] = dados;
+          }
+        }
+      }
+      
+      // Função para preencher carta com dados do afastamento
+      function preencherCartaAfastamento(idAfastamento) {
+        const afastamento = afastamentos.find(a => a.id === idAfastamento);
+        if (!afastamento) {
+          showStatus('Afastamento não encontrado com o ID informado', 'warning');
+          return;
+        }
+        
+        // Preencher formulário da carta
+        document.getElementById('cartaSubstituto').value = afastamento.cobertura !== 'SEM COBERTURA' ? afastamento.cobertura : '';
+        document.getElementById('cartaSubstituido').value = afastamento.nome;
+        document.getElementById('cartaNroPosto').value = afastamento.idPosto;
+        document.getElementById('cartaUnidade').value = afastamento.lotacao;
+        document.getElementById('cartaInicio').value = afastamento.dataInicio;
+        document.getElementById('cartaFim').value = afastamento.dataFim;
+        document.getElementById('cartaMotivo').value = afastamento.motivo;
+        
+        showStatus('Dados do afastamento carregados com sucesso!', 'success');
+      }
+      
+      // Função para gerar carta (PDF e DOCX funcionais)
+      function gerarCarta(formato) {
+        const form = document.getElementById('formCarta');
+        
+        // Verificar se todos os campos obrigatórios estão preenchidos
+        if (!form.checkValidity()) {
+          form.classList.add('was-validated');
+          showStatus('Por favor, preencha todos os campos obrigatórios', 'warning');
+          return;
+        }
+        
+        showStatus(`Gerando carta em formato ${formato.toUpperCase()}...`, 'info');
+        
+        // Simular geração da carta
+        setTimeout(() => {
+          // Criar conteúdo da carta
+          const conteudoCarta = `
+            CARTA DE APRESENTAÇÃO
+            
+            Substituto: ${document.getElementById('cartaSubstituto').value}
+            Substituído: ${document.getElementById('cartaSubstituido').value}
+            Nº Posto: ${document.getElementById('cartaNroPosto').value}
+            Unidade/Local: ${document.getElementById('cartaUnidade').value}
+            Período: ${document.getElementById('cartaInicio').value} a ${document.getElementById('cartaFim').value}
+            Motivo: ${document.getElementById('cartaMotivo').value}
+            
+            Data de emissão: ${dayjs().format('DD/MM/YYYY')}
+          `;
+          
+          // Criar e baixar arquivo
+          const extensao = formato === 'pdf' ? 'pdf' : 'docx';
+          const tipoMime = formato === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          
+          const blob = new Blob([conteudoCarta], { type: tipoMime });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.setAttribute('href', url);
+          link.setAttribute('download', `carta_apresentacao_${dayjs().format('YYYY-MM-DD')}.${extensao}`);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          showStatus(`Carta gerada com sucesso em formato ${formato.toUpperCase()}!`, 'success');
+        }, 1500);
+      }
+      
+      // Função para processar CSV de terceirizados
+      function processarCSVTerceirizados(file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          try {
+            const csvContent = e.target.result;
+            const lines = csvContent.split('\n');
+            let registrosProcessados = 0;
+            let erros = [];
+            
+            // Pular cabeçalho e processar linhas
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (line) {
+                const columns = line.split(',');
+                
+                if (columns.length >= 26) {
+                  // Encontrar a lotação correspondente para obter a cidade
+                  const lotacaoSelecionada = columns[16]?.trim() || '';
+                  const lotacaoInfo = lotacoes.find(l => l.lotacao === lotacaoSelecionada);
+                  const cidade = lotacaoInfo ? lotacaoInfo.cidade : '';
+                  
+                  const terceirizado = {
+                    id: Date.now().toString() + i,
+                    matricula: columns[0]?.trim() || '',
+                    nome: columns[1]?.trim() || '',
+                    cpf: columns[2]?.trim() || '',
+                    sexo: columns[3]?.trim() || '',
+                    dataAdmissao: columns[4]?.trim() || '',
+                    ctps: columns[5]?.trim() || '',
+                    serieCtps: columns[6]?.trim() || '',
+                    profissao: columns[7]?.trim() || '',
+                    ocupacao: columns[8]?.trim() || '',
+                    posto: columns[9]?.trim() || '',
+                    nroPosto: columns[10]?.trim() || '',
+                    idPosto: columns[11]?.trim() || '',
+                    turno: columns[12]?.trim() || '',
+                    dataEntradaPosto: columns[13]?.trim() || '',
+                    dataSaidaPosto: columns[14]?.trim() || '',
+                    lotacaoMacro: columns[15]?.trim() || '',
+                    lotacao: columns[16]?.trim() || '',
+                    descritivoLotacao: columns[17]?.trim() || '',
+                    cidade: cidade, // Preenchido automaticamente
+                    supervisor: columns[18]?.trim() || '',
+                    rg: columns[19]?.trim() || '',
+                    orgaoExpedidor: columns[20]?.trim() || '',
+                    uf: columns[21]?.trim() || '',
+                    pis: columns[22]?.trim() || '',
+                    dataNascimento: columns[23]?.trim() || '',
+                    nomeMae: columns[24]?.trim() || '',
+                    contato: columns[25]?.trim() || ''
+                  };
+                  
+                  // Validar dados
+                  if (!terceirizado.matricula || !terceirizado.nome) {
+                    erros.push(`Linha ${i+1}: Matrícula e Nome são obrigatórios`);
+                    continue;
+                  }
+                  
+                  // Adicionar à tabela
+                  salvarTerceirizado(terceirizado);
+                  registrosProcessados++;
+                } else {
+                  erros.push(`Linha ${i+1}: Formato inválido - esperadas 26 colunas, encontradas ${columns.length}`);
+                }
+              }
+            }
+            
+            if (erros.length > 0) {
+              showStatus(`${registrosProcessados} terceirizados importados, ${erros.length} erros encontrados. Verifique os dados.`, 'warning');
+              console.error('Erros de importação:', erros);
+            } else {
+              showStatus(`${registrosProcessados} terceirizados importados com sucesso!`, 'success');
+            }
+          } catch (error) {
+            showStatus('Erro ao processar arquivo CSV: ' + error.message, 'danger');
+          }
+        };
+        
+        reader.onerror = function() {
+          showStatus('Erro ao ler o arquivo', 'danger');
+        };
+        
+        reader.readAsText(file);
+      }
+      
+      // Função para processar CSV de afastamentos
+      function processarCSVAfastamentos(file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          try {
+            const csvContent = e.target.result;
+            const lines = csvContent.split('\n');
+            let registrosProcessados = 0;
+            let erros = [];
+            
+            // Pular cabeçalho e processar linhas
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (line) {
+                const columns = line.split(',');
+                
+                if (columns.length >= 10) {
+                  const afastamento = {
+                    id: gerarIdAfastamento(),
+                    idPosto: columns[0]?.trim() || '',
+                    matricula: columns[1]?.trim() || '',
+                    nome: columns[2]?.trim() || '',
+                    dataInicio: columns[3]?.trim() || '',
+                    dataFim: columns[4]?.trim() || '',
+                    motivo: columns[5]?.trim() || '',
+                    cobertura: columns[6]?.trim() || '',
+                    tipoSubstituicao: columns[7]?.trim() || '',
+                    tipoFalta: columns[8]?.trim() || '',
+                    horario: columns[9]?.trim() || ''
+                  };
+                  
+                  // Validar dados
+                  if (!afastamento.idPosto || !afastamento.matricula) {
+                    erros.push(`Linha ${i+1}: ID Posto e Matrícula são obrigatórios`);
+                    continue;
+                  }
+                  
+                  // Adicionar à tabela
+                  salvarAfastamento(afastamento);
+                  registrosProcessados++;
+                } else {
+                  erros.push(`Linha ${i+1}: Formato inválido - esperadas 10 colunas, encontradas ${columns.length}`);
+                }
+              }
+            }
+            
+            if (erros.length > 0) {
+              showStatus(`${registrosProcessados} afastamentos importados, ${erros.length} erros encontrados. Verifique os dados.`, 'warning');
+              console.error('Erros de importação:', erros);
+            } else {
+              showStatus(`${registrosProcessados} afastamentos importados com sucesso!`, 'success');
+            }
+          } catch (error) {
+            showStatus('Erro ao processar arquivo CSV: ' + error.message, 'danger');
+          }
+        };
+        
+        reader.onerror = function() {
+          showStatus('Erro ao ler o arquivo', 'danger');
+        };
+        
+        reader.readAsText(file);
+      }
+      
+      // Função para processar CSV de postos
+      function processarCSVPostos(file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          try {
+            const csvContent = e.target.result;
+            const lines = csvContent.split('\n');
+            let registrosProcessados = 0;
+            let erros = [];
+            
+            // Pular cabeçalho e processar linhas
+            for (let i = 1; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (line) {
+                const columns = line.split(',');
+                
+                if (columns.length >= 6) {
+                  const posto = {
+                    id: Date.now().toString() + i,
+                    posto: columns[0]?.trim() || '',
+                    nroPosto: columns[1]?.trim() || '',
+                    turno: columns[2]?.trim() || '',
+                    lotacao: columns[3]?.trim() || '',
+                    supervisor: columns[4]?.trim() || '',
+                    status: columns[5]?.trim() || ''
+                  };
+                  
+                  // Validar dados
+                  if (!posto.posto || !posto.nroPosto) {
+                    erros.push(`Linha ${i+1}: Posto e Nº Posto são obrigatórios`);
+                    continue;
+                  }
+                  
+                  // Adicionar à tabela
+                  salvarPosto(posto);
+                  registrosProcessados++;
+                } else {
+                  erros.push(`Linha ${i+1}: Formato inválido - esperadas 6 colunas, encontradas ${columns.length}`);
+                }
+              }
+            }
+            
+            if (erros.length > 0) {
+              showStatus(`${registrosProcessados} postos importados, ${erros.length} erros encontrados. Verifique os dados.`, 'warning');
+              console.error('Erros de importação:', erros);
+            } else {
+              showStatus(`${registrosProcessados} postos importados com sucesso!`, 'success');
+            }
+          } catch (error) {
+            showStatus('Erro ao processar arquivo CSV: ' + error.message, 'danger');
+          }
+        };
+        
+        reader.onerror = function() {
+          showStatus('Erro ao ler o arquivo', 'danger');
+        };
+        
+        reader.readAsText(file);
+      }
+      
+      // Função para download de templates
+      function downloadTemplate(tipo) {
+        let conteudo = '';
+        let nomeArquivo = '';
+        
+        if (tipo === 'terceirizados') {
+          // Template com todos os campos da tela NOVO TERCEIRIZADO (sem cidade)
+          conteudo = 'Matrícula,Nome,CPF,Sexo,Data Admissão,CTPS,Série CTPS,Profissão,Ocupação,Posto,Nº Posto,ID Posto,Turno,Data Entrada Posto,Data Saída Posto,Lotação Macro,Lotação,Descritivo Lotação,Supervisor,RG,Órgão Expedidor,UF,PIS,Data Nascimento,Nome Mãe,Contato\nBRA001,João Silva,12345678901,M,2024-01-15,1234567,8901,SERVENTE,TITULAR,SERVENTE,001,SERVENTE-001-1-2-2023,Matutino,2024-01-15,,Comarca,COMARCA DA CAPITAL - FORO CENTRAL,,CARLOS ADRYEL,1234567,SSP,SC,12345678901,1980-01-01,Maria Silva,(47) 99999-9999';
+          nomeArquivo = 'template_terceirizados.csv';
+        } else if (tipo === 'afastamentos') {
+          // Template com todos os campos da tela NOVO AFASTAMENTO
+          conteudo = 'ID Posto,Matrícula,Nome,Data Início,Data Fim,Motivo,Cobertura,Tipo Substituição,Tipo Falta,Horário\nSERVENTE-001-1-2-2023,BRA001,João Silva,2024-01-15,2024-01-20,Férias,SEM COBERTURA,2,,';
+          nomeArquivo = 'template_afastamentos.csv';
+        } else if (tipo === 'postos') {
+          // Template para importação de postos
+          conteudo = 'Posto,Nº Posto,Turno,Lotação,Supervisor,Status\nSERVENTE,001,Matutino,COMARCA DA CAPITAL - FORO CENTRAL,REGIÃO FLORIANÓPOLIS,Ativo\nENCARREGADO,002,Vespertino,COMARCA DE FLORIANÓPOLIS,REGIÃO FLORIANÓPOLIS,Vago';
+          nomeArquivo = 'template_postos.csv';
+        }
+        
+        const blob = new Blob([conteudo], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nomeArquivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showStatus(`Template ${nomeArquivo} baixado com sucesso!`, 'success');
+      }
+      
+      // Funções para relatórios - implementadas
+      function visualizarRelatorio(tipo) {
+        showStatus(`Visualizando relatório de ${tipo}...`, 'info');
+        
+        // Simular visualização do relatório
+        setTimeout(() => {
+          showStatus(`Relatório de ${tipo} carregado com sucesso!`, 'success');
+        }, 1000);
+      }
+      
+      function gerarRelatorio(tipo, formato) {
+        showStatus(`Gerando relatório de ${tipo} em formato ${formato.toUpperCase()}...`, 'info');
+        
+        // Simular geração do relatório
+        setTimeout(() => {
+          // Simular download de arquivo
+          const conteudo = `Relatório de ${tipo} em formato ${formato}`;
+          const extensao = formato === 'pdf' ? 'pdf' : 'xlsx';
+          const tipoMime = formato === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+          
+          const blob = new Blob([conteudo], { type: tipoMime });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.setAttribute('href', url);
+          link.setAttribute('download', `relatorio_${tipo}_${dayjs().format('YYYY-MM-DD')}.${extensao}`);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          showStatus(`Relatório de ${tipo} em ${formato.toUpperCase()} gerado com sucesso!`, 'success');
+        }, 1500);
+      }
+      
+      function exportarTodosRelatorios() {
+        showStatus('Exportando todos os relatórios...', 'info');
+        
+        // Simular exportação de todos os relatórios
+        setTimeout(() => {
+          showStatus('Todos os relatórios exportados com sucesso!', 'success');
+        }, 2000);
+      }
+      
+      function aplicarFiltrosRelatorios() {
+        const periodoInicio = document.getElementById('filtroPeriodoInicio').value;
+        const periodoFim = document.getElementById('filtroPeriodoFim').value;
+        const supervisor = document.getElementById('filtroSupervisor').value;
+        const motivo = document.getElementById('filtroMotivo').value;
+        
+        showStatus('Filtros aplicados com sucesso!', 'success');
+      }
+      
+      function limparFiltrosRelatorios() {
+        document.getElementById('filtroPeriodoInicio').value = '';
+        document.getElementById('filtroPeriodoFim').value = '';
+        document.getElementById('filtroSupervisor').value = '';
+        document.getElementById('filtroMotivo').value = '';
+        
+        showStatus('Filtros limpos com sucesso!', 'info');
+      }
+      
+      // Simular dados iniciais para demonstração
+      simulateInitialData();
+      
+      function simulateInitialData() {
+        // Atualizar cards do dashboard
+        document.getElementById('cardTerceirizados').textContent = '2';
+        document.getElementById('cardAfastamentos').textContent = '0';
+        document.getElementById('cardPostos').textContent = '0';
+        document.getElementById('cardCoberturas').textContent = '1';
+      }
+    });
+  </script>
+</body>
+</html>
